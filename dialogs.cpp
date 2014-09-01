@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/

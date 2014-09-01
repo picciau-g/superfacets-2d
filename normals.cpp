@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -39,6 +39,7 @@ Normals::Normals(Vertex3D a, Vertex3D b, Vertex3D c){
     this->ny=(vec1[2]*vec2[0])-(vec1[0]*vec2[2]);
     this->nz=(vec1[0]*vec2[1])-(vec1[1]*vec2[0]);
 
+    //To have them in range [0,1]
     Normalize();
 }
 
@@ -55,7 +56,7 @@ void Normals::Normalize(){
 
 /**
  * @brief Normals::dotProd scalar product
- * @param N
+ * @param N normal vector
  * @return
  */
 float Normals::dotProd(Normals N){

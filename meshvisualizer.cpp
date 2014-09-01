@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -279,7 +279,6 @@ void MeshVisualizer::draw_mesh(){
 void MeshVisualizer::initializeGL(){
 
     glEnable(GL_POLYGON_SMOOTH);
-    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_TEXTURE_2D);
     glClearColor(1.0,1.0,1.0,1.0);
@@ -363,6 +362,7 @@ void MeshVisualizer::keyPressEvent(QKeyEvent *e){
 
     switch(e->key()){
 
+    //close window
     case Qt::Key_Escape:
     case Qt::Key_Q:
         close();

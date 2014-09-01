@@ -98,7 +98,7 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
 
     mesh.reserveVectorSpace_Vertices(num_vertices);
 
-    //legge i vertici aggiustando il dominio..
+    //reads vertices
     for (int i = 0; i < num_vertices; i++) {
         double x, y, z;
 
@@ -123,7 +123,7 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
 
     mesh.reserveVectorSpace_TopSimplexes(num_topSimplexes);
 
-    //legge i top simplessi
+    //reads top simplexes
     for (int i = 0; i < num_topSimplexes; i++) {
         int v[3];
         for (int j = 0; j < 3; j++)
@@ -136,6 +136,8 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
 }
 
 /**
+ * @author Giulia Picciau
+ * @date 04-15-2014
  * @brief Reader::readOFFMesh reads triangle meshes in .off format
  * @param mesh where to put the information
  * @param path path to file

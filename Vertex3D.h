@@ -36,10 +36,19 @@ public:
      */
     void setZ(double x);
 
-    //this function returns the norm of vector vec-v
+    /**
+     * @brief norma
+     * @param v A 3D vertex
+     * @return The norm of the vector representing the vertex
+     */
     double norma(Vertex3D& v){return(sqrt(((v.getX()-x)*(v.getX()-x))+((v.getY()-y)*(v.getY()-y))+((v.getZ()-z)*(v.getZ()-z))));}
 
-    //this function returns the scalar products between vectors v1-vec and v2-vec
+    /**
+     * @brief prodscal
+     * @param v1 one vertex
+     * @param v2 another vertex
+     * @return Scalar product between this-v1 and this-v2
+     */
     double prodscal(Vertex3D& v1,Vertex3D& v2){return(((v1.getX()-x)*(v2.getX()-x))+((v1.getY()-y)*(v2.getY()-y))+((v1.getZ()-z)*(v2.getZ()-z)));}
 
     //norm of this vector
@@ -57,6 +66,10 @@ public:
         return sqrt(xdist*xdist + ydist*ydist + zdist*zdist);
     }
 
+    /**
+     * @brief setSaliency
+     * @param sal saliency value to be set
+     */
     inline void setSaliency(double sal)
     {
         this->vertexSaliency = sal;
@@ -68,6 +81,11 @@ public:
         return this->vertexSaliency;
     }
 
+    /**
+     * @brief operator <
+     * @param v A vertex
+     * @return
+     */
     inline bool operator<(Vertex3D& v){
 
         if(this->x < v.getX()) return true;
@@ -76,6 +94,11 @@ public:
         return false;
     }
 
+    /**
+     * @brief operator >
+     * @param v A vertex
+     * @return
+     */
     inline bool operator>(Vertex3D& v){
 
         if(this->x > v.getX()) return true;

@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -36,26 +36,50 @@ public:
     /// Vector Normalization
     void Normalize();
 
+    /**
+     * @brief getNx
+     * @return x component of the normal vector
+     */
     inline float getNx(){
         return this->nx;
     }
 
+    /**
+     * @brief getNy
+     * @return y component of the normal vector
+     */
     inline float getNy(){
         return this->ny;
     }
 
+    /**
+     * @brief getNz
+     * @return z component of the normal vector
+     */
     inline float getNz(){
         return this->nz;
     }
 
+    /**
+     * @brief setNX set x component of the normal vector
+     * @param a value of the x component
+     */
     inline void setNX(float a){
         this->nx=a;
     }
 
+    /**
+     * @brief setNY set y component of the normal vector
+     * @param a value of the y component
+     */
     inline void setNY(float a){
         this->ny=a;
     }
 
+    /**
+     * @brief setNZ set z component of the normal vector
+     * @param a value of the z component
+     */
     inline void setNZ(float a){
         this->nz=a;
     }

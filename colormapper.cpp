@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -22,8 +22,8 @@ ColorMapper::ColorMapper()
  * @brief ColorMapper::ColorMapper creates a subdivision of the hsv cone depending on the number of segments
  * @param totalC: number of segments in which the mesh is divided
  */
-ColorMapper::ColorMapper(int totalC){
-    numColors=totalC;
+ColorMapper::ColorMapper(int num){
+    numColors=num;
 
     saturation=1.0;
     value=1.0;

@@ -12,7 +12,7 @@
 #include "Edge.h"
 
 /*
-Ritorna vero sse v e' un estremo del lato v1-v2
+True iff v is an endpoint of edge v1-v2
 */
 #define is_endpoint(v,v1,v2) ( ( (v)==(v1) ) || ( (v)==(v2) ) )
 enum versus { CW=0 , CCW=1 };

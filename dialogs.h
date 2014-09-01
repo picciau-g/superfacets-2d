@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -30,6 +30,7 @@ public:
     QString nameI;
     QImage outIm;
 
+    //returns the chosen name for the screenshot
     inline QString getNameI(){
         return this->nameI;
     }
@@ -37,7 +38,9 @@ public:
 signals:
     
 public slots:
+    //name chosen
     void nameGiven();
+    //action when the save button is clicked (saves the image)
     void buttonSaveClicked();
 
 private:

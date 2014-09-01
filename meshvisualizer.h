@@ -53,39 +53,62 @@ public:
 
     //Position and orientation
     inline void initParams(){
+
+        /**
+         * Position of the object
+         */
         objPX=0.0;
         objPY=0.0;
         objPZ=0.0;
 
+        /**
+         * Rotation of the object
+         **/
         objRX=0.0;
         objRY=0.0;
         objRZ=0.0;
 
+        /**
+         *Rotation of the camera
+         */
         rotationX=0.0;
         rotationY=0.0;
         rotationZ=0.0;
     }
 
-    /// Sets the name of the mesh to be visualized
+    /**
+     * @brief setMeshName Assign the name of the mesh to be loaded and visualized
+     * @param filename path to the mesh file
+     */
     inline void setMeshName(string filename){
         this->meshFile=filename;
     }
-    /// Sets the name of the segmentation to be appplied to the mesh
+
+    /**
+     * @brief setSegmName Name of the segmentation to apply to the mesh
+     * @param filename Path of .seg file with the segmentation
+     */
     inline void setSegmName(string filename){
         this->segFile=filename;
     }
 
-    /// When we change the segmentation applied to a mesh
+    /**
+     * @brief destroyWidget Destroys the window
+     */
     inline void destroyWidget(){
         this->destroy();
     }
 
-    /// to be able to call the paint function from outside (to save a screenshot of the visualization)
+    /**
+     * @brief getPaint Draws the scene (wrapper to call it from outside)
+     */
     inline void getPaint(){
         this->paintGL();
     }
 
-    /// number of clusters
+    /**
+     * @brief setNclus Set the number of clusters
+     */
     inline void setNclus(){
         numClusters=0;
         for(unsigned int a=0;a<mesh.getTopSimplexesNum();a++){
@@ -95,6 +118,12 @@ public:
         numClusters++;
     }
 
+    /**
+     * @brief setTypeOfVisualization
+     * @param tp
+     *
+     * TODO
+     */
     inline void setTypeOfVisualization(unsigned int tp){
         this->typeV = tp % 3;
     }
@@ -105,7 +134,9 @@ public slots:
 
 private:
 
+    //mesh name
     string meshFile;
+    //segmentation name
     string segFile;
 
     Mesh<Vertex3D, Triangle> mesh;
@@ -160,6 +191,7 @@ private:
     GLfloat objRY;
     GLfloat objRZ;
 
+    //camera rotation
     GLfloat rotationX;
     GLfloat rotationY;
     GLfloat rotationZ;

@@ -6,7 +6,7 @@
  *                 Patricio Simari - Department of Electrical Engineering and Computer Science, The Catholic University of America
  *
  *   Title:          Fast and scalable mesh superfacets
- *   Submission to Eurographics Symposium on Geometry Processing 2014
+ *   Submission to Pacific Graphics 2014
  *
  *
  **/
@@ -150,10 +150,17 @@ public:
         this->etaconvex=eta;
     }
 
+    /**
+     * @brief callLoad wrapper to load the mesh from outside the class
+     */
     inline void callLoad(){
         this->loadMesh();
     }
 
+    /**
+     * @brief setMaxIters
+     * @param i Maximum number of desired iterations (default=50)
+     */
     inline void setMaxIters(int i){
         this->maxIters = i;
     }
@@ -178,10 +185,6 @@ public:
     std::tr1::unordered_map<edgekey, float> buildAngleDistances();
     void buildGlobalDistances();
 
-    /// Shlafman functions (Geodesic one is the same)
-    std::tr1::unordered_map<edgekey, float> buildAngleShlafman();
-    void buildGlobalShlafman();
-
     /// Alternative initialization that takes as input the number of regions
     void placeSeeds(int index);
 
@@ -194,14 +197,27 @@ public:
     /// Input/Output Functions
     int writeSegmOnFile(string);
 
+    /**
+     * @brief setElapsedTime (for the .seg header)
+     * @param t execution time in milliseconds
+     */
     inline void setElapsedTime(double t){
         this->millisecs=t;
     }
 
+    /**
+     * @brief setIters (for the .seg header)
+     * @param count number of iterations
+     */
     inline void setIters(int count){
         this->iters=count;
     }
 
+    /**
+     * @brief setTypeVis
+     * @param v
+     *TODO
+     */
     inline void setTypeVis(unsigned int v){
         this->visT=v;
     }
@@ -290,7 +306,7 @@ private:
             if(y <= z){
                 if(x <= z)
                     return (gridkey(fabs(y)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(z)));
-                return (gridkey(fabs(y)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(z)));
+                return (gridkey(fabs(y)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(x)));
             }
             if(x <= y)
                 return (gridkey(fabs(z)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(y)));
@@ -308,6 +324,11 @@ private:
             faceAreas[a]=mesh.TArea(a);
     }
 
+    /**
+     * @brief indexOfMax
+     * @param array array of double values
+     * @return the index of the highest value in array
+     */
     inline faceind indexOfMax(double *array){
         double actual = -10000; //All the values should be > 0 (they are distances)
         int toRet=-1;
@@ -320,6 +341,11 @@ private:
         return toRet;
     }
 
+    /**
+     * @brief checkVisited check if all the faces were assigned
+     * @param set set of faces
+     * @return true if all faces were assigned, false otherwise
+     */
     inline bool checkVisited(unordered_set<edgekey> set){
 
         for(auto it=set.begin(); it!=set.end(); ++it){
