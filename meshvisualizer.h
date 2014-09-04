@@ -111,7 +111,10 @@ public:
      */
     inline void setNclus(){
         numClusters=0;
+
+        //Find the number of clusters checking the highest cluster index value. Does like this because this number could change over the iterations
         for(unsigned int a=0;a<mesh.getTopSimplexesNum();a++){
+
             if(numClusters < clusterIndex[a])
                 numClusters=clusterIndex[a];
         }
@@ -144,7 +147,7 @@ private:
     //Stores the indices of the segments
     int* clusterIndex;
 
-    /// Type of visualization (0=normal, 1=fading, 2=concavities)
+    /// Type of visualization (0=normal, 1=edges, 2=points)
     unsigned int typeV;
 
     /// bounding box diagonal's length

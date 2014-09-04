@@ -32,6 +32,7 @@ MeshVisualizer::MeshVisualizer(string fname, string sname){
 
     findMExtension(fname);
     cout<<"Loaded Mesh "<<fname.c_str()<<endl;
+    typeV = 0; //Default normal visualization
     InitStructures();
 }
 
@@ -212,7 +213,22 @@ void MeshVisualizer::draw_triangle(Triangle T, int f){
         verts[i]=mesh.getVertex(indverts[i]);
     }
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    switch(typeV){
+    case 0:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        break;
+    case 1:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        break;
+    case 2:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        glPointSize(3);
+        break;
+    default:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+
     glBegin(GL_TRIANGLES);
     for(int ii=0;ii<3;ii++){
         glNormal3f(normals.at(f).getNx(), normals.at(f).getNy(), normals.at(f).getNz());
@@ -255,7 +271,8 @@ void MeshVisualizer::draw_mesh(){
 
             int neigh = T.TT(jj);
 
-            if(clusterIndex[ii] != clusterIndex[neigh]){
+            /// If the visualization mode is not with points, mark boundaries between edges with black lines
+            if(typeV!= 2 && clusterIndex[ii] != clusterIndex[neigh]){
 
                 Edge* ee = T.TE(jj);
                 Vertex3D v0 = mesh.getVertex(ee->EV(0));
@@ -395,6 +412,18 @@ void MeshVisualizer::keyPressEvent(QKeyEvent *e){
     case Qt::Key_S:
         saveImage();
         break;
+
+    case Qt::Key_F:
+        typeV=0;
+        //updateGL();
+        break;
+    case Qt::Key_L:
+        typeV=1;
+        break;
+    case Qt::Key_P:
+        typeV=2;
+        break;
+
     default:
         e->ignore();
         break;
