@@ -266,25 +266,26 @@ void MeshVisualizer::draw_mesh(){
         setColor(ii);
         draw_triangle(T, ii);
 
-        //Mark edges between clusters
-        for(int jj=0;jj<3;jj++){
+        /// If visualization mode is not points, mark edges between clusters
+        if(typeV!=2){
+            for(int jj=0;jj<3;jj++){
 
-            int neigh = T.TT(jj);
+                int neigh = T.TT(jj);
 
-            /// If the visualization mode is not with points, mark boundaries between edges with black lines
-            if(typeV!= 2 && clusterIndex[ii] != clusterIndex[neigh]){
+                if(clusterIndex[ii] != clusterIndex[neigh]){
 
-                Edge* ee = T.TE(jj);
-                Vertex3D v0 = mesh.getVertex(ee->EV(0));
-                Vertex3D v1 = mesh.getVertex(ee->EV(1));
+                    Edge* ee = T.TE(jj);
+                    Vertex3D v0 = mesh.getVertex(ee->EV(0));
+                    Vertex3D v1 = mesh.getVertex(ee->EV(1));
 
-                glLineWidth(2.0);
-                glColor3f(0.0,0.0,0.0);
+                    glLineWidth(2.0);
+                    glColor3f(0.0,0.0,0.0);
 
-                glBegin(GL_LINES);
-                glVertex3f(v0.getX(), v0.getY(), v0.getZ());
-                glVertex3f(v1.getX(), v1.getY(), v1.getZ());
-                glEnd();
+                    glBegin(GL_LINES);
+                    glVertex3f(v0.getX(), v0.getY(), v0.getZ());
+                    glVertex3f(v1.getX(), v1.getY(), v1.getZ());
+                    glEnd();
+                }
             }
         }
     }
@@ -413,14 +414,13 @@ void MeshVisualizer::keyPressEvent(QKeyEvent *e){
         saveImage();
         break;
 
-    case Qt::Key_F:
+    case Qt::Key_F:         /// Triangle visualization (default)
         typeV=0;
-        //updateGL();
         break;
-    case Qt::Key_L:
+    case Qt::Key_L:         /// Line visualization
         typeV=1;
         break;
-    case Qt::Key_P:
+    case Qt::Key_P:         /// Point visualization
         typeV=2;
         break;
 
