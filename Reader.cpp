@@ -155,7 +155,7 @@ bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
     string line;
 
     getline(input,line);
-    if(line.compare("OFF")){
+    if(!line.compare("OFF")){
         cerr << "Error in file " << path << "\nThe file could not exist, be unreadable or incorrect." << endl;
         return false;
     }
