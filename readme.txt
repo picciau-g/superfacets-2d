@@ -1,6 +1,6 @@
 Executable name: Superfacets
 
-It produces an oversegmentation of a triangle mesh (considered as its surface) into small patches, according to a distance metric which combines an approximation of the geodesic distance on the surface and an angular term as approximation of the surface curvature. It also allows for the visualization of the output segmentation applied to the object, and to save a screenshot of this result.
+It produces an oversegmentation of a triangle mesh into small patches, according to a distance metric which combines an approximation of the geodesic distance on the surface and an angular term as approximation of the surface curvature. It also allows for the visualization of the output segmentation applied to the object, and to save a screenshot of this result.
 
 Compile:
 In the folder there are source files and headers, and a .pro file. Under Linux-based systems it can be compiled by typing 'make' into the directory where the files are stored.
@@ -8,8 +8,8 @@ In the folder there are source files and headers, and a .pro file. Under Linux-b
 Execute:
 The program is triggered from command line by typing './Superfacets': if no parameter is passed, then it just shows instructions about how to pass the parameters which are necessary to run the segmentation, and then exits.
 
-There are several parameters which can be passed to the program, here we mention the main ones:
-	'-m' [path/to/meshfile] loads the mesh stored in path/to/meshfile. Notice that it can be one between a '.off' or a '.tri' file.
+There are several parameters which can be tuned, here we mention the more important ones:
+	'-m' [path/to/meshfile] loads the mesh stored in path/to/meshfile. Notice that it can be either a '.off' or a '.tri' file.
 	
 	'-a' [alpha] states the weight of the angular term over the angular one (higher alpha means higher importance to the curvature). In our experiments, we have established a good value for this parameter in the range [0...500]
 	
