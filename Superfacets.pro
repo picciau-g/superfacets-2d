@@ -41,7 +41,8 @@ SOURCES += main.cpp \
     meshvisualizer.cpp \
     Edge.cpp \
     dialogs.cpp \
-    colormapper.cpp
+    colormapper.cpp \
+    vertexbasedsegmenter.cpp
 
 HEADERS += \
     Vertex3D.h \
@@ -56,7 +57,8 @@ HEADERS += \
     Mesh.h \
     Edge.h \
     dialogs.h \
-    colormapper.h
+    colormapper.h \
+    vertexbasedsegmenter.h
 
 
 unix:!macx {

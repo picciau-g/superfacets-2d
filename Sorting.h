@@ -1,6 +1,8 @@
 #ifndef SORTING_H
 #define SORTING_H
 
+#include <math.h>
+
 typedef struct {
     int v1,v2;
     int t;

@@ -18,7 +18,7 @@
 #include "Reader.h"
 #include <tr1/unordered_map>
 #include <queue>
-#include <unordered_set>
+#include <tr1/unordered_set>
 #include <numeric>
 #include <QString>
 #include <QStringList>
@@ -346,7 +346,7 @@ private:
      * @param set set of faces
      * @return true if all faces were assigned, false otherwise
      */
-    inline bool checkVisited(unordered_set<edgekey> set){
+    inline bool checkVisited(std::tr1::unordered_set<edgekey> set){
 
         for(auto it=set.begin(); it!=set.end(); ++it){
             edgekey faceV = *it;

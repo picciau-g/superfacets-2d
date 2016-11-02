@@ -90,7 +90,7 @@ void MeshVisualizer::readSegmFromFile(string segfilename){
     ifstream ifs;
     string line;
 
-    ifs.open(segfilename);
+    ifs.open(segfilename.c_str());
 
     if(ifs.is_open()){
 
@@ -313,7 +313,7 @@ void MeshVisualizer::resizeGL(int width, int height){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     GLfloat x = GLfloat(width) / GLfloat(height);
-    gluPerspective(25.0, x, 0.2, -0.5);
+    gluPerspective(25.0, x, 0.2, 200);
     glMatrixMode(GL_MODELVIEW);
 }
 
