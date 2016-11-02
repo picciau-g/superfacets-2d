@@ -25,7 +25,11 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <GL/glu.h>
+#ifdef __APPLE__
+    #include <OpenGL/glu.h>
+#else
+    #include <GL/glu.h>
+#endif
 #include "Reader.h"
 #include "colormapper.h"
 #include "normals.h"
