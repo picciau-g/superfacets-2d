@@ -19,13 +19,12 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-<<<<<<< HEAD
 QMAKE_MAC_SDK = macosx10.11
-=======
+
 macx: {
     QMAKE_MAC_SDK = macosx10.11
 }
->>>>>>> origin/master
+
 
 QMAKE_CXXFLAGS_RELEASE += -fpermissive
 QMAKE_CXXFLAGS_DEBUG += -fpermissive
@@ -65,10 +64,7 @@ HEADERS += \
     vertexbasedsegmenter.h
 
 
-<<<<<<< HEAD
 #LIBS += -framework -lGLU
-=======
 unix:!macx {
 LIBS += -lGLU
 }
->>>>>>> origin/master

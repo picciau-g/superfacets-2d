@@ -70,8 +70,7 @@ Vertex3D VertexBasedSegmenter::centerCoordinate(){
     res.setX(sumX/mesh.getNumVertex());
     res.setY(sumY/mesh.getNumVertex());
     res.setZ(sumZ/mesh.getNumVertex());
-    if(debugMode)
-        cout<<"RES "<<res.getX()<<" "<<res.getY()<<" "<<res.getZ()<<endl;
+
     return res;
 }
 
@@ -107,4 +106,32 @@ void VertexBasedSegmenter::Segmentation(){
         expansionStep();
 
     cout<<"Ok, converged"<<endl;
+}
+
+void VertexBasedSegmenter::expansionStep(){
+
+}
+
+void VertexBasedSegmenter::expandSeed(int a, int b){
+
+}
+
+bool VertexBasedSegmenter::updateCenters(){
+
+}
+
+std::tr1::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistances(){
+
+}
+
+std::tr1::unordered_map<edgekey, float> VertexBasedSegmenter::buildFunctionVDistances(){
+
+}
+
+void VertexBasedSegmenter::buildGlobalDistances(){
+
+}
+
+void VertexBasedSegmenter::getBBDiagonal(){
+
 }

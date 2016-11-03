@@ -31,7 +31,7 @@ struct compare{
     }
 };
 
-edgekey getKey(faceind a, faceind b){
+edgekey getKey(vertexind a, vertexind b){
 
         if(a<=b)
             return (edgekey(a) << 32 | edgekey(b));
