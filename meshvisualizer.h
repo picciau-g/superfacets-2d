@@ -26,7 +26,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <OpenGL/glu.h>
+//#include <OpenGL/glu.h>
 
 #ifdef __APPLE__
     #include <OpenGL/glu.h>

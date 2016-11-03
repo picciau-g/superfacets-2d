@@ -77,6 +77,7 @@ private:
     int *clusterIndex;
     int NCluster;
     float maxD;
+    float alpha;
 
     /// Center of the mesh (it may not be on the mesh surface)
     Vertex3D centerMesh;
@@ -88,6 +89,12 @@ private:
 
     /// Length of the bouding box diagonal
     float BBDiagonal;
+
+    /// Index of the "Central Vertex" of the region
+    std::tr1::unordered_map<edgekey, int> regionCentroids;
+
+    std::tr1::unordered_map<edgekey, float> outputDijkstra;
+
 
 
     void loadMesh();
@@ -103,14 +110,12 @@ private:
     void startSeg();
 
     void expansionStep();
-    void expandSeed(int, int);
+    void expandSeed(int indexV, int newInd);
 
     /// Input/Output Functions
     int writeSegmOnFile(string);
     void openMeshFile(string);
 
-    /// Check that all the vertices have been assigned to some cluster
-    bool CheckClusterIndex();
     /// Update of the centroids
     bool updateCenters();
 
@@ -128,6 +133,17 @@ private:
             faceAreas[a]=mesh.TArea(a);
     }
     Vertex3D halfPoint(Vertex3D, Vertex3D);
+
+    inline bool VertexBasedSegmenter::CheckClusterIndex(){
+        bool ret=true;
+
+        for(int a=0;a<mesh.getNumVertex();a++){
+            if(clusterIndex[a] < 0){
+                ret=false;
+            }
+        }
+        return ret;
+    }
 
 };
 
