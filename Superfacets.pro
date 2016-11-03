@@ -19,7 +19,13 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+<<<<<<< HEAD
 QMAKE_MAC_SDK = macosx10.11
+=======
+macx: {
+    QMAKE_MAC_SDK = macosx10.11
+}
+>>>>>>> origin/master
 
 QMAKE_CXXFLAGS_RELEASE += -fpermissive
 QMAKE_CXXFLAGS_DEBUG += -fpermissive
@@ -39,7 +45,8 @@ SOURCES += main.cpp \
     meshvisualizer.cpp \
     Edge.cpp \
     dialogs.cpp \
-    colormapper.cpp
+    colormapper.cpp \
+    vertexbasedsegmenter.cpp
 
 HEADERS += \
     Vertex3D.h \
@@ -54,7 +61,14 @@ HEADERS += \
     Mesh.h \
     Edge.h \
     dialogs.h \
-    colormapper.h
+    colormapper.h \
+    vertexbasedsegmenter.h
 
 
+<<<<<<< HEAD
 #LIBS += -framework -lGLU
+=======
+unix:!macx {
+LIBS += -lGLU
+}
+>>>>>>> origin/master
