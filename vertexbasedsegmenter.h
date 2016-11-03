@@ -115,6 +115,7 @@ private:
     /// Input/Output Functions
     int writeSegmOnFile(string);
     void openMeshFile(string);
+    void openCurvatureFile(string);
 
     /// Update of the centroids
     bool updateCenters();

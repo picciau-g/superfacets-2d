@@ -356,3 +356,20 @@ int VertexBasedSegmenter::writeSegmOnFile(string filename){
     cout<<"Unable to write on file "<<endl;
     return -1;
 }
+
+
+void VertexBasedSegmenter::openCurvatureFile(string curvFile){
+
+    FILE* f = fopen(curvFile.c_str(), 'r');
+
+    int num;
+    float fv;
+    fscanf(f, "%d", &num);
+
+    for(int ii=0; ii<num; ii++){
+        fscanf(f, "%f", &fv);
+        functionValue.push_back(fv);
+    }
+
+    cout<<"read "<<functionValue.size()<<"elements"<<endl;
+}
