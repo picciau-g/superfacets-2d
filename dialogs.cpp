@@ -48,6 +48,8 @@ void dialogS::nameGiven(){
 void dialogS::buttonSaveClicked(){
 
     outIm.save(imgName->toPlainText());
+    std::string s = (imgName->toPlainText().toStdString());
+    printf("Saved as %s\n", s.c_str());
     this->close();
 }
 

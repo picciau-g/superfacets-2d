@@ -17,7 +17,7 @@ Vertex3D::Vertex3D() {
  */
 Vertex3D::Vertex3D(const Vertex3D& orig) : Vertex2D(orig) {
     this->z=orig.z;
-    this->vertexSaliency=orig.saliency();
+    //this->vertexSaliency=orig.saliency();
 }
 
 Vertex3D::~Vertex3D() {

@@ -19,6 +19,8 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+QMAKE_MAC_SDK = macosx10.11
+
 QMAKE_CXXFLAGS_RELEASE += -fpermissive
 QMAKE_CXXFLAGS_DEBUG += -fpermissive
 QMAKE_CXXFLAGS += -std=c++0x
@@ -55,4 +57,4 @@ HEADERS += \
     colormapper.h
 
 
-LIBS += -lGLU
+#LIBS += -framework -lGLU

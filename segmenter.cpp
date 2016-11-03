@@ -240,7 +240,8 @@ Vertex3D Segmenter::halfPoint(Vertex3D v1, Vertex3D v2){
     double coordY = (v1.getY() + v2.getY())/2;
     double coordZ = (v1.getZ() + v2.getZ())/2;
 
-    return Vertex3D(coordX, coordY, coordZ);
+    Vertex3D v =  Vertex3D(coordX, coordY, coordZ);
+    return v;
 }
 
 /**
@@ -507,7 +508,7 @@ void Segmenter::expansionStep(){
 void Segmenter::expandSeed(int indexT, int newind){
 
     priority_queue<pointDist, vector<pointDist>, compare> Q;
-    unordered_set<faceind> visited;
+    std::tr1::unordered_set<faceind> visited;
 
     if(debugMode){
         if(expanded[indexT]==0)
@@ -850,7 +851,7 @@ int Segmenter::writeSegmOnFile(string fileout){
 
     //open file in write mode
         ofstream ofs;
-        ofs.open(fileout);
+        ofs.open(fileout.c_str());
 
         time_t now;
         time(&now);

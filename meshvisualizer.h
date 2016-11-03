@@ -25,7 +25,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <GL/glu.h>
+#include <OpenGL/glu.h>
 #include "Reader.h"
 #include "colormapper.h"
 #include "normals.h"
