@@ -135,7 +135,7 @@ private:
     }
     Vertex3D halfPoint(Vertex3D, Vertex3D);
 
-    inline bool VertexBasedSegmenter::CheckClusterIndex(){
+    inline bool CheckClusterIndex(){
         bool ret=true;
 
         for(int a=0;a<mesh.getNumVertex();a++){

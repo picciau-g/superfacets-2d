@@ -360,7 +360,7 @@ int VertexBasedSegmenter::writeSegmOnFile(string filename){
 
 void VertexBasedSegmenter::openCurvatureFile(string curvFile){
 
-    FILE* f = fopen(curvFile.c_str(), 'r');
+    FILE* f = fopen(curvFile.c_str(), "r");
 
     int num;
     float fv;
