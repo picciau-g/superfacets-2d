@@ -61,7 +61,8 @@ HEADERS += \
     Edge.h \
     dialogs.h \
     colormapper.h \
-    vertexbasedsegmenter.h
+    vertexbasedsegmenter.h \
+    common.h
 
 
 #LIBS += -framework -lGLU
