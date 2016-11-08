@@ -1,49 +1,45 @@
 #ifndef VERTEXBASEDSEGMENTER_H
 #define VERTEXBASEDSEGMENTER_H
 
-#include "normals.h"
-#include "Timer.h"
-#include "Reader.h"
-#include <tr1/unordered_map>
-#include <queue>
-#include <tr1/unordered_set>
-#include <numeric>
-#include <QString>
-#include <QStringList>
-#include <cfloat>
-#include <fstream>
+//#include "normals.h"
+//#include "Timer.h"
+//#include "Reader.h"
+//#include <tr1/unordered_map>
+//#include <queue>
+//#include <tr1/unordered_set>
+//#include <numeric>
+//#include <QString>
+//#include <QStringList>
+//#include <cfloat>
+//#include <fstream>
+#include "common.h"
 
 namespace std { using namespace __gnu_cxx; }
 
 typedef unsigned long int vertexind;
-typedef unsigned long long int edgekey;
+//typedef unsigned long long int edgekey;
 
-struct pointDist{
-    int indexP;
-    double distanceP;
-};
+//struct pointDist{
+//    int indexP;
+//    double distanceP;
+//};
 
-struct compare{
+//struct compare{
 
-    bool operator ()(pointDist p1, pointDist p2){
+//    bool operator ()(pointDist p1, pointDist p2){
 
-        return p1.distanceP > p2.distanceP;
-    }
-};
+//        return p1.distanceP > p2.distanceP;
+//    }
+//};
 
-edgekey getKey(vertexind a, vertexind b){
-
-        if(a<=b)
-            return (edgekey(a) << 32 | edgekey(b));
-        else
-            return (edgekey(b) << 32 | edgekey(a));
-    }
+edgekey getVertexKey(vertexind a, vertexind b);
 
 class VertexBasedSegmenter
 {
 public:
     VertexBasedSegmenter();
     string filename;
+    string fieldfilename;
 
     Mesh<Vertex3D, Triangle> mesh;
     vector<Normals> norms;
@@ -70,6 +66,18 @@ public:
 
     inline void callLoad(){
         this->loadMesh();
+    }
+
+    inline void setAlpha(float a){
+        this->alpha=a;
+    }
+
+    inline void startSeg(){
+        this->Segmentation();
+    }
+
+    inline void callWriter(string outfile){
+        writeSegmOnFile(outfile);
     }
 
 private:
@@ -107,7 +115,6 @@ private:
     void buildGlobalDistances();
 
     void placeSeeds(int index);
-    void startSeg();
 
     void expansionStep();
     void expandSeed(int indexV, int newInd);
@@ -144,6 +151,18 @@ private:
             }
         }
         return ret;
+    }
+
+    inline vertexind indexOfMax(double *array){
+        double actual = -10000; //All the values should be > 0 (they are distances)
+        int toRet=-1;
+        for(int aa=0;aa<mesh.getNumVertex();aa++){
+            if(array[aa] > actual){
+                toRet = aa;
+                actual = array[aa];
+            }
+        }
+        return toRet;
     }
 
 };

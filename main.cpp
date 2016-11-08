@@ -1,5 +1,6 @@
 #include "segmenter.h"
 #include "meshvisualizer.h"
+#include "vertexbasedsegmenter.h"
 #include <stdio.h>
 #include <QApplication>
 
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
     bool debugM=false;
     int timesR = 2;
     int nIters = 50;
+    bool triBased = true;
 
     if(argc==1){
         print_help();
@@ -90,6 +92,7 @@ int main(int argc, char *argv[])
     //Parse arguments
     string meshfilename;
     string segFile;
+    string fieldFile;
     double alpha;
     double radius;
     int number;
@@ -169,6 +172,13 @@ int main(int argc, char *argv[])
             debugM=true;
             cout<<"Debug mode selected"<<endl;
         }
+
+        else if(!strcmp(option, "-VB")){
+            triBased = false;
+            justvisualize=false;
+            QString input = argv[n_opt+1];
+            fieldFile = input.toStdString();
+        }
         else{
             cout<<"Uncorrect usage"<<endl;
             print_help();
@@ -180,6 +190,24 @@ int main(int argc, char *argv[])
 
         callVis(meshfilename, segFile);
         return a.exec();
+    }
+
+    if(!triBased){
+
+        cout<<"Loading vertices"<<endl;
+        VertexBasedSegmenter *VBSuperSeg = new VertexBasedSegmenter;
+        cout<<"Created"<<endl;
+        VBSuperSeg->filename = meshfilename;
+        VBSuperSeg->fieldfilename = fieldFile;
+        VBSuperSeg->setNCluster(number);
+        VBSuperSeg->setAlpha(alpha);
+        VBSuperSeg->callLoad();
+
+        VBSuperSeg->startSeg();
+        cout<<"Converged, now writing"<<endl;
+        VBSuperSeg->callWriter(segFile);
+
+        return 0;
     }
 
     /// Create segmenter class
