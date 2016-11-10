@@ -39,6 +39,7 @@ public:
      * @param num The number of regions of the segmentation
      */
     ColorMapper(int num);
+    ColorMapper(float max, int count);
 
     /*
      * Functions to assign the color to a triangle depending on the region to which it belongs
@@ -46,6 +47,10 @@ public:
     void setRed(int);
     void setGreen(int);
     void setBlue(int);
+
+    void setRed(float);
+    void setGreen(float);
+    void setBlue(float);
 
     /*
      *Color intensities

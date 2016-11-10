@@ -31,6 +31,15 @@ ColorMapper::ColorMapper(int num){
     stepHue=360.0/numColors;
 }
 
+ColorMapper::ColorMapper(float max, int count){
+    numColors=count;
+
+    saturation=1.0;
+    value=1.0;
+
+    stepHue=360.0/numColors;
+}
+
 
 /**
  * @brief ColorMapper::setRed assigns a value for the red channel
@@ -39,6 +48,24 @@ ColorMapper::ColorMapper(int num){
 void ColorMapper::setRed(int region){
 
     hue=region*stepHue;
+    //std::cout<<"Hue "<<hue<<" reg "<<region<<std::endl;
+    float hueSixty=hue/60.0;
+    float X =(1.0-fabs(fmod(hueSixty,2.0)-1.0));
+
+    if((hueSixty >=0.0 && hueSixty < 1.0) || (hueSixty >= 5.0 && hueSixty <6.0))
+        red=saturation*value;
+    else if((hueSixty >= 1.0 && hueSixty < 2.0) || (hueSixty >= 4.0 && hueSixty <5.0)){
+        red=X;
+    }
+    else{
+        red=0.0;
+    }
+}
+
+void ColorMapper::setRed(float value){
+
+    hue=value*stepHue;
+    //std::cout<<"Hue "<<hue<<" reg "<<region<<std::endl;
     float hueSixty=hue/60.0;
     float X =(1.0-fabs(fmod(hueSixty,2.0)-1.0));
 
@@ -70,12 +97,39 @@ void ColorMapper::setGreen(int region){
         green=0.0;
 }
 
+void ColorMapper::setGreen(float region){
+
+    hue=region*stepHue;
+    float hueSixty=hue/60.0;
+    float X=(saturation*value) * (1.0-fabs(fmod(hueSixty,2.0)-1.0));
+
+    if((hueSixty>=0.0 && hueSixty < 1.0) || (hueSixty >=3.0 && hueSixty < 4.0))
+        green=X;
+    else if(hueSixty >= 1.0 && hueSixty < 3.0)
+        green=saturation*value;
+    else
+        green=0.0;
+}
 
 /**
  * @brief ColorMapper::setBlue assigns a value for the blue channel
  * @param region: the index of the segment to which the triangle belongs
  */
 void ColorMapper::setBlue(int region){
+
+    hue=region*stepHue;
+    float hueSixty=hue/60.0;
+    float X=(saturation*value) * (1.0-fabs(fmod(hueSixty,2.0)-1.0));
+
+    if(hueSixty >= 0.0 && hueSixty < 2.0)
+        blue=0.0;
+    else if(hueSixty >= 3.0 && hueSixty < 5.0)
+        blue=saturation*value;
+    else
+        blue=X;
+}
+
+void ColorMapper::setBlue(float region){
 
     hue=region*stepHue;
     float hueSixty=hue/60.0;
