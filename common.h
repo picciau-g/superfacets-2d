@@ -4,9 +4,9 @@
 #include "normals.h"
 #include "Timer.h"
 #include "Reader.h"
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <queue>
-#include <tr1/unordered_set>
+#include <unordered_set>
 #include <numeric>
 #include <QString>
 #include <QStringList>

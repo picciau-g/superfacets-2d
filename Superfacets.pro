@@ -19,10 +19,10 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-QMAKE_MAC_SDK = macosx10.11
+QMAKE_MAC_SDK = macosx14.0
 
 macx: {
-    QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx14.0
 }
 
 

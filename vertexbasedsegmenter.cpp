@@ -196,7 +196,7 @@ void VertexBasedSegmenter::expansionStep(){
 void VertexBasedSegmenter::expandSeed(int indexV, int newInd){
 
     priority_queue<pointDist, vector<pointDist>, compare> Q;
-    std::tr1::unordered_set<vertexind> visited;
+    std::unordered_set<vertexind> visited;
 
     pointDist seed;
     seed.indexP = indexV;
@@ -251,7 +251,7 @@ bool VertexBasedSegmenter::updateCenters(){
         differences[ii]=0;
 
     bool any_moves=false;
-    std::tr1::unordered_map<edgekey, int> olds;
+    std::unordered_map<edgekey, int> olds;
 
     for(unsigned int ii=0;ii<NCluster;ii++){
 
@@ -302,9 +302,9 @@ bool VertexBasedSegmenter::updateCenters(){
     return any_moves;
 }
 
-std::tr1::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistances(){
+std::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistances(){
 
-    std::tr1::unordered_map<edgekey, float> VD;
+    std::unordered_map<edgekey, float> VD;
 
     for(unsigned int ii=0; ii<mesh.getNumVertex(); ii++){
 
@@ -342,9 +342,9 @@ std::tr1::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistanc
     return VD;
 }
 
-std::tr1::unordered_map<edgekey, float> VertexBasedSegmenter::buildFunctionVDistances(){
+std::unordered_map<edgekey, float> VertexBasedSegmenter::buildFunctionVDistances(){
 
-    std::tr1::unordered_map<edgekey, float> fdDistances;
+    std::unordered_map<edgekey, float> fdDistances;
 
     for(int ii=0; ii<mesh.getNumVertex(); ii++){
 

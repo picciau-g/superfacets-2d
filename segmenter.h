@@ -26,7 +26,7 @@
 //#include <fstream>
 #include "common.h"
 
-namespace std { using namespace __gnu_cxx; }
+//namespace std { using namespace __gnu_cxx; }
 
 ///// types for indices of triangles and for adjacencies between them
 typedef unsigned long int faceind;
@@ -88,16 +88,16 @@ public:
     /// To see if it needs to print the header on the  output file
     bool putHeader;
     /// Map containing the geodesic distances between pairs of faces
-    std::tr1::unordered_map<edgekey,float> faceDistances;
+    std::unordered_map<edgekey, float> faceDistances;
     /// Map containing the angular distances between pairs of faces
-    std::tr1::unordered_map<edgekey, float> angleDistances;
+    std::unordered_map<edgekey, float> angleDistances;
     /// Map containing the global distances between pairs of faces (obtained combining geodesic and angular distance)
-    std::tr1::unordered_map<edgekey, float> globalDistances;
+    std::unordered_map<edgekey, float> globalDistances;
 
-    std::tr1::unordered_map<edgekey, float> outputDijkstra;
+    std::unordered_map<edgekey, float> outputDijkstra;
 
     /// Index of the "Central Triangle" of the region
-    std::tr1::unordered_map<edgekey, int> regionCentroids;
+    std::unordered_map<edgekey, int> regionCentroids;
     /// Areas ot the faces of the mesh
     float* faceAreas;
 
@@ -181,8 +181,8 @@ public:
     int nearestFace();
 
     /// Functions to build geodesic (face), angular and global distances
-    std::tr1::unordered_map<edgekey, float> buildFaceDistances();
-    std::tr1::unordered_map<edgekey, float> buildAngleDistances();
+    std::unordered_map<edgekey, float> buildFaceDistances();
+    std::unordered_map<edgekey, float> buildAngleDistances();
     void buildGlobalDistances();
 
     /// Alternative initialization that takes as input the number of regions
@@ -346,7 +346,7 @@ private:
      * @param set set of faces
      * @return true if all faces were assigned, false otherwise
      */
-    inline bool checkVisited(std::tr1::unordered_set<edgekey> set){
+    inline bool checkVisited(std::unordered_set<edgekey> set){
 
         for(auto it=set.begin(); it!=set.end(); ++it){
             edgekey faceV = *it;

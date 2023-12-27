@@ -14,7 +14,7 @@
 #include "meshvisualizer.h"
 
 MeshVisualizer::MeshVisualizer(QWidget *parent) :
-    QGLWidget(parent)
+    QWidget(parent)
 {
 }
 
@@ -111,12 +111,12 @@ void MeshVisualizer::readSegmFromFile(string segfilename){
  */
 void MeshVisualizer::saveImage(){
 
-    dialogS *SD = new dialogS;
-    SD->resize(400, 200);
+    // dialogS *SD = new dialogS;
+    // SD->resize(400, 200);
 
-    QImage QI = this->grabFrameBuffer();
-    SD->outIm = QI;
-    SD->show();
+    // QImage QI = this->grab();//grabFrameBuffer();
+    // SD->outIm = QI;
+    // SD->show();
 }
 
 /**
@@ -368,7 +368,7 @@ void MeshVisualizer::mouseMoveEvent(QMouseEvent *e){
         objRX += 180*dy;
         objRZ += 180*dx;
     }
-    updateGL();
+    update();
     lPos = e->pos();
 }
 
@@ -428,5 +428,5 @@ void MeshVisualizer::keyPressEvent(QKeyEvent *e){
         e->ignore();
         break;
     }
-    updateGL();
+    update();
 }

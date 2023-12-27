@@ -294,9 +294,9 @@ float Segmenter::centroidDistance(int f1, int f2){
  * @return a hash map with the approximate geodesic distances between
  *      pairs of adjacent triangles
  */
-std::tr1::unordered_map<edgekey, float> Segmenter::buildFaceDistances(){
+std::unordered_map<edgekey, float> Segmenter::buildFaceDistances(){
 
-    std::tr1::unordered_map<edgekey, float> FD;
+    std::unordered_map<edgekey, float> FD;
 
     for(unsigned int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
 
@@ -324,9 +324,9 @@ std::tr1::unordered_map<edgekey, float> Segmenter::buildFaceDistances(){
  * @return a hash map with the angular distance between
  *      pairs of adjacent triangles
  */
-std::tr1::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
+std::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
 
-    std::tr1::unordered_map<edgekey, float> aDistances;
+    std::unordered_map<edgekey, float> aDistances;
 
     for(int ii=0;ii<mesh.getTopSimplexesNum();ii++){
         Triangle T=mesh.getTopSimplex(ii);
@@ -508,7 +508,7 @@ void Segmenter::expansionStep(){
 void Segmenter::expandSeed(int indexT, int newind){
 
     priority_queue<pointDist, vector<pointDist>, compare> Q;
-    std::tr1::unordered_set<faceind> visited;
+    std::unordered_set<faceind> visited;
 
     if(debugMode){
         if(expanded[indexT]==0)
@@ -597,7 +597,7 @@ void Segmenter::placeSeeds(int index){
  */
 void Segmenter::initializationGrid(){
 
-    std::tr1::unordered_map<gridkey, int> hmap; //for already assigned maps
+    std::unordered_map<gridkey, int> hmap; //for already assigned maps
     int id=0; //index of current region
     float denominator = 2*maxD*BBDiagonal;
 
@@ -772,7 +772,7 @@ bool Segmenter::updateCenters(){
     bool any_moves=false;
 
     // stores the old centroids
-    std::tr1::unordered_map<edgekey, int> olds;
+    std::unordered_map<edgekey, int> olds;
     if(debugMode)
         cout<<"Update"<<endl;
 

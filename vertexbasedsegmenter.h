@@ -14,7 +14,7 @@
 //#include <fstream>
 #include "common.h"
 
-namespace std { using namespace __gnu_cxx; }
+//namespace std { using namespace __gnu_cxx; }
 
 typedef unsigned long int vertexind;
 //typedef unsigned long long int edgekey;
@@ -45,9 +45,9 @@ public:
     vector<Normals> norms;
     vector<float> functionValue;
 
-    std::tr1::unordered_map<edgekey,float> vertexDistances;
-    std::tr1::unordered_map<edgekey,float> functionVDistances;
-    std::tr1::unordered_map<edgekey,float> globalDistances;
+    std::unordered_map<edgekey,float> vertexDistances;
+    std::unordered_map<edgekey,float> functionVDistances;
+    std::unordered_map<edgekey,float> globalDistances;
 
     inline int getNCluster(){
         return this->NCluster;
@@ -99,9 +99,9 @@ private:
     float BBDiagonal;
 
     /// Index of the "Central Vertex" of the region
-    std::tr1::unordered_map<edgekey, int> regionCentroids;
+    std::unordered_map<edgekey, int> regionCentroids;
 
-    std::tr1::unordered_map<edgekey, float> outputDijkstra;
+    std::unordered_map<edgekey, float> outputDijkstra;
 
 
 
@@ -110,8 +110,8 @@ private:
     int nearestVertex(); //closest to mesh barycenter
 
     /// Functions to build geodesic (face), angular and global distances
-    std::tr1::unordered_map<edgekey, float> buildVertexDistances();
-    std::tr1::unordered_map<edgekey, float> buildFunctionVDistances();
+    std::unordered_map<edgekey, float> buildVertexDistances();
+    std::unordered_map<edgekey, float> buildFunctionVDistances();
     void buildGlobalDistances();
 
     void placeSeeds(int index);

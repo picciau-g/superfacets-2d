@@ -15,7 +15,6 @@
 #define MESHVISUALIZER_H
 
 #include <QWidget>
-#include <QGLWidget>
 #include <QPoint>
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -49,7 +48,7 @@ typedef unsigned long long int edgekey;
  * @brief The MeshVisualizer class opens a window to display the segmentation
  * applied to a mesh (one color per segment)
  */
-class MeshVisualizer : public QGLWidget
+class MeshVisualizer : public QWidget
 {
     Q_OBJECT
 public:
