@@ -3,67 +3,93 @@
 /**
  * @brief Vertex2D::Vertex2D class constructor
  */
-Vertex2D::Vertex2D() {
-    this->x = 0;
-    this->y = 0;
-    this->vtstar = -1;
+Vertex2D::Vertex2D()
+:
+    m_X(0.0)
+    , m_Y(0.0)
+    , m_VTstar(-1)
+{
+
 }
 
 /**
  * @brief Vertex2D::Vertex2D class constructor
  * @param orig origin
  */
-Vertex2D::Vertex2D(const Vertex2D& orig) {
-    this->x = orig.x;
-    this->y = orig.y;
-    this->vtstar = orig.vtstar;
+Vertex2D::Vertex2D(const Vertex2D& pOrig)
+:
+    m_X(pOrig.m_X)
+    , m_Y(pOrig.m_Y)
+    , m_VTstar(pOrig.m_VTstar)
+{
+
 }
 
 /**
  * @brief Vertex2D::Vertex2D class constructor
- * @param x x coordinate
- * @param y y coordinate
+ * @param pX pX coordinate
+ * @param pY pY coordinate
  */
-Vertex2D::Vertex2D(double x, double y){
-    this->x = x;
-    this->y = y;
-    this->vtstar = -1;
+Vertex2D::Vertex2D(double pX, double pY)
+:
+    m_X(pX)
+    , m_Y(pY)
+    , m_VTstar(-1)
+{
+
 }
 
-Vertex2D::~Vertex2D() {
+Vertex2D::~Vertex2D()
+{
 }
 
-double Vertex2D::getX(){
-    return this->x;
+double Vertex2D::getX()
+{
+    return m_X;
 }
 
-double Vertex2D::getY(){
-    return this->y;
+double Vertex2D::getY()
+{
+    return m_Y;
+}
+
+double Vertex2D::getX() const
+{
+    return m_X;
+}
+
+double Vertex2D::getY() const
+{
+    return m_Y;
 }
 
 
-void Vertex2D::setX(double x){
-    this->x = x;
+void Vertex2D::setX(double pX)
+{
+    this->m_X = pX;
 }
 
-void Vertex2D::setY(double y){
-    this->y = y;
+void Vertex2D::setY(double pY)
+{
+    this->m_Y = pY;
 }
 
 int Vertex2D::VTstar()
 {
-    return this->vtstar;
+    return m_VTstar;
 }
 
 void Vertex2D::VTstar(int vtstar)
 {
-    this->vtstar = vtstar;
+    m_VTstar = vtstar;
 }
 
-bool operator== (const Vertex2D &p, const Vertex2D &q) {
-        return ((p.x == q.x) && (p.y == q.y));
+bool operator== (const Vertex2D &p, const Vertex2D &q)
+{
+    return ((p.m_X == q.m_X) && (p.m_Y == q.m_Y));
 }
 
-bool operator !=(const Vertex2D& p, const Vertex2D& q) {
+bool operator !=(const Vertex2D& p, const Vertex2D& q)
+{
         return !(p == q);
 }

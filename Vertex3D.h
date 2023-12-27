@@ -11,37 +11,39 @@ public:
     ///A constructor method
     Vertex3D();
     ///A constructor method
-    Vertex3D(const Vertex3D& orig);
+    Vertex3D(const Vertex3D& pOrig);
     ///A constructor method
     /*!
      * \param x a float argument, representing the x coordinate
      * \param y a float argument, representing the y coordinate
      * \param z a float argument, representing the z coordinate
      */
-    Vertex3D(double x, double y, double z);
+    Vertex3D(double pX, double pY, double pZ);
     ///A destructor method
     virtual ~Vertex3D();
     ///
-    friend bool operator== (const Vertex3D& p, const Vertex3D &q);
+    friend bool operator== (const Vertex3D& pP, const Vertex3D &pQ);
     ///
-    friend bool operator!= (const Vertex3D& p, const Vertex3D &q);
+    friend bool operator!= (const Vertex3D& pP, const Vertex3D &pQ);
     ///A public method that returns the z coordinate
     /*!
      * \return a double value, representing the z coordinate
      */
     double getZ();
+    double getZ() const;
     ///A public method that sets the x coordinate
     /*!
      * \param x a double argument, represents the value of the x coordinate to set
      */
-    void setZ(double x);
+    void setZ(double pZ);
 
     /**
      * @brief norma
-     * @param v A 3D vertex
+     * @param pV; A 3D vertex
      * @return The norm of the vector representing the vertex
      */
-    double norma(Vertex3D& v){return(sqrt(((v.getX()-x)*(v.getX()-x))+((v.getY()-y)*(v.getY()-y))+((v.getZ()-z)*(v.getZ()-z))));}
+    double Norm();
+    double Norm(const Vertex3D& pOth);
 
     /**
      * @brief prodscal
@@ -49,19 +51,16 @@ public:
      * @param v2 another vertex
      * @return Scalar product between this-v1 and this-v2
      */
-    double prodscal(Vertex3D& v1,Vertex3D& v2){return(((v1.getX()-x)*(v2.getX()-x))+((v1.getY()-y)*(v2.getY()-y))+((v1.getZ()-z)*(v2.getZ()-z)));}
-
-    //norm of this vector
-    double norma() {return sqrt((x)*(x)+(y)*(y)+(z)*(z));}
+    double prodscal(const Vertex3D& v1,const Vertex3D& v2){return(((v1.getX()-m_X)*(v2.getX()-m_X))+((v1.getY()-m_Y)*(v2.getY()-m_Y))+((v1.getZ()-m_Z)*(v2.getZ()-m_Z)));}
 
     //scalar products between vectors vec and v1
-    double prodscal(Vertex3D& v1){return(((v1.getX())*(x))+((v1.getY())*(y))+((v1.getZ())*(z)));}
+    double prodscal(const Vertex3D& v1);
 
-    inline double distance(Vertex3D& v)
+    inline double distance(const Vertex3D& v)
     {
-        double xdist = this->x-v.getX();
-        double ydist = this->y-v.getY();
-        double zdist = this->z-v.getZ();
+        double xdist = this->m_X-v.getX();
+        double ydist = this->m_Y-v.getY();
+        double zdist = this->m_Z-v.getZ();
 
         return sqrt(xdist*xdist + ydist*ydist + zdist*zdist);
     }
@@ -86,11 +85,11 @@ public:
      * @param v A vertex
      * @return
      */
-    inline bool operator<(Vertex3D& v){
+    inline bool operator<(const Vertex3D& v){
 
-        if(this->x < v.getX()) return true;
-        else if(this->x == v.getX() && this->y < v.getY()) return true;
-        else if(this->x == v.getX() && this->y == v.getY() && this->z < v.getZ()) return true;
+        if(this->m_X < v.getX()) return true;
+        else if(this->m_X == v.getX() && this->m_Y < v.getY()) return true;
+        else if(this->m_X == v.getX() && this->m_Y == v.getY() && this->m_Z < v.getZ()) return true;
         return false;
     }
 
@@ -99,17 +98,17 @@ public:
      * @param v A vertex
      * @return
      */
-    inline bool operator>(Vertex3D& v){
+    inline bool operator>(const Vertex3D& v){
 
-        if(this->x > v.getX()) return true;
-        else if(this->x == v.getX() && this->y > v.getY()) return true;
-        else if(this->x == v.getX() && this->y == v.getY() && this->z > v.getZ()) return true;
+        if(this->m_X > v.getX()) return true;
+        else if(this->m_X == v.getX() && this->m_Y > v.getY()) return true;
+        else if(this->m_X == v.getX() && this->m_Y == v.getY() && this->m_Z > v.getZ()) return true;
         return false;
     }
 
-private:    
-    ///A protected variable representing the z coordinate of the point
-    double z;
+private:
+    ///A protected variable representing the m_Z coordinate of the point
+    double m_Z;
     double vertexSaliency;
 
 };

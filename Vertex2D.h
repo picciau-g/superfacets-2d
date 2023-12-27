@@ -11,13 +11,13 @@ public:
     ///A constructor method
     Vertex2D();
     ///A constructor method
-    Vertex2D(const Vertex2D& orig);
+    Vertex2D(const Vertex2D& pOrig);
     ///A constructor method
     /*!
      * \param x a float argument, representing the x coordinate
      * \param y a float argument, representing the y coordinate
      */
-    Vertex2D(double x, double y);
+    Vertex2D(double pX, double pY);
     ///A destructor method
     virtual ~Vertex2D();
     ///
@@ -29,32 +29,34 @@ public:
      * \return a double value, representing the x coordinate
      */
     double getX();
+    double getX() const;
     ///A public method that returns the y coordinate
     /*!
      * \return a double value, representing the y coordinate
      */
     double getY();
+    double getY() const;
     ///A public method that sets the x coordinate
     /*!
-     * \param x a double argument, represents the value of the x coordinate to set
+     * \param pX a double argument, represents the value of the pX coordinate to set
      */
-    void setX(double x);
+    void setX(double pX);
     ///A public method that sets the x coordinate
     /*!
-     * \param x a double argument, represents the value of the x coordinate to set
+     * \param pY a double argument, represents the value of the pY coordinate to set
      */
-    void setY(double x);
+    void setY(double pY);
     ///
     int VTstar();
     ///
     void VTstar(int vtstar);
 protected:
-    ///A protected variable representing the x coordinate of the point
-    double x;
-    ///A protected variable representing the y coordinate of the point
-    double y;
+    ///A protected variable representing the m_X coordinate of the point
+    double m_X;
+    ///A protected variable representing the m_Y coordinate of the point
+    double m_Y;
     ///
-    int vtstar;
+    int m_VTstar;
 };
 
 #endif // VERTEX2D_H
