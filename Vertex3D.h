@@ -1,11 +1,11 @@
 #ifndef _VERTEX3D_H
 #define	_VERTEX3D_H
 
-#include <math.h>
 #include "Vertex2D.h"
+#include <glm/gtx/norm.hpp>
 
 /// An inner-class, extending Vertex2D, representing a vertex in a triangle mesh
-class Vertex3D : public Vertex2D
+class Vertex3D : public Vertex
 {
 public:
     ///A constructor method
@@ -19,31 +19,65 @@ public:
      * \param z a float argument, representing the z coordinate
      */
     Vertex3D(double pX, double pY, double pZ);
+
+    Vertex3D(const glm::vec3& pCoords);
+
     ///A destructor method
     virtual ~Vertex3D();
     ///
     friend bool operator== (const Vertex3D& pP, const Vertex3D &pQ);
     ///
     friend bool operator!= (const Vertex3D& pP, const Vertex3D &pQ);
+
+    ///A public method that returns the x coordinate
+    /*!
+     * \return a double value, representing the x coordinate
+     */
+    double getX();
+    double getX() const;
+
+    ///A public method that returns the y coordinate
+    /*!
+     * \return a double value, representing the y coordinate
+     */
+    double getY();
+    double getY() const;
+
+
     ///A public method that returns the z coordinate
     /*!
      * \return a double value, representing the z coordinate
      */
     double getZ();
     double getZ() const;
+
     ///A public method that sets the x coordinate
     /*!
-     * \param x a double argument, represents the value of the x coordinate to set
+     * \param pX a double argument, represents the value of the x coordinate to set
+     */
+    void setX(double pX);
+
+    ///A public method that sets the x coordinate
+    /*!
+     * \param pY a double argument, represents the value of the y coordinate to set
+     */
+    void setY(double pY);
+
+    ///A public method that sets the x coordinate
+    /*!
+     * \param pZ a double argument, represents the value of the z coordinate to set
      */
     void setZ(double pZ);
+
+    glm::vec3 GetCoordinates() const;
 
     /**
      * @brief norma
      * @param pV; A 3D vertex
      * @return The norm of the vector representing the vertex
      */
-    double Norm();
-    double Norm(const Vertex3D& pOth);
+    double SquaredMagnitude();
+    double SquaredDistance(const Vertex3D& pOth);
 
     /**
      * @brief prodscal
@@ -51,18 +85,20 @@ public:
      * @param v2 another vertex
      * @return Scalar product between this-v1 and this-v2
      */
-    double prodscal(const Vertex3D& v1,const Vertex3D& v2){return(((v1.getX()-m_X)*(v2.getX()-m_X))+((v1.getY()-m_Y)*(v2.getY()-m_Y))+((v1.getZ()-m_Z)*(v2.getZ()-m_Z)));}
+    double prodscal(const Vertex3D& v1,const Vertex3D& v2);
 
     //scalar products between vectors vec and v1
     double prodscal(const Vertex3D& v1);
 
+
+    /**
+     * @brief distance
+     * @param v the Vertex3D we're calculating the distance to
+     * @return the distance between this and v
+     */
     inline double distance(const Vertex3D& v)
     {
-        double xdist = this->m_X-v.getX();
-        double ydist = this->m_Y-v.getY();
-        double zdist = this->m_Z-v.getZ();
-
-        return sqrt(xdist*xdist + ydist*ydist + zdist*zdist);
+        return glm::length(m_Coordinates-v.GetCoordinates());
     }
 
     /**
@@ -87,9 +123,9 @@ public:
      */
     inline bool operator<(const Vertex3D& v){
 
-        if(this->m_X < v.getX()) return true;
-        else if(this->m_X == v.getX() && this->m_Y < v.getY()) return true;
-        else if(this->m_X == v.getX() && this->m_Y == v.getY() && this->m_Z < v.getZ()) return true;
+        if(m_Coordinates.x < v.getX()) return true;
+        else if(m_Coordinates.x == v.getX() && m_Coordinates.y < v.getY()) return true;
+        else if(m_Coordinates.x == v.getX() && m_Coordinates.y == v.getY() && m_Coordinates.z < v.getZ()) return true;
         return false;
     }
 
@@ -100,15 +136,15 @@ public:
      */
     inline bool operator>(const Vertex3D& v){
 
-        if(this->m_X > v.getX()) return true;
-        else if(this->m_X == v.getX() && this->m_Y > v.getY()) return true;
-        else if(this->m_X == v.getX() && this->m_Y == v.getY() && this->m_Z > v.getZ()) return true;
+        if(m_Coordinates.x > v.getX()) return true;
+        else if(m_Coordinates.x == v.getX() && m_Coordinates.y > v.getY()) return true;
+        else if(m_Coordinates.x == v.getX() && m_Coordinates.y == v.getY() && m_Coordinates.z > v.getZ()) return true;
         return false;
     }
 
 private:
     ///A protected variable representing the m_Z coordinate of the point
-    double m_Z;
+    glm::vec3 m_Coordinates;
     double vertexSaliency;
 
 };

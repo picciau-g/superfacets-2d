@@ -898,8 +898,8 @@ template<class V, class T> double Mesh<V,T>::TArea(int t)
     v2=this->getTopSimplex(t).TV(1);
     v3=this->getTopSimplex(t).TV(2);
     prodscaluv=this->getVertex(v1).prodscal(this->getVertex(v2),this->getVertex(v3));
-    normau=this->getVertex(v1).Norm(this->getVertex(v2));
-    normav=this->getVertex(v1).Norm(this->getVertex(v3));
+    normau=sqrt(this->getVertex(v1).SquaredDistance(this->getVertex(v2)));
+    normav=sqrt(this->getVertex(v1).SquaredDistance(this->getVertex(v3)));
     cosalpha = prodscaluv / (normau*normav);
     senalpha=sqrt(1-(cosalpha*cosalpha));
     if(cosalpha*cosalpha > 1) senalpha = 0.0001;

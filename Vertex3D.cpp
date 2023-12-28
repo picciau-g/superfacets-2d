@@ -3,9 +3,9 @@
 /**
  * @brief Vertex3D::Vertex3D class constructor
  */
-Vertex3D::Vertex3D() :
-    Vertex2D(0,0)
-    , m_Z(0)
+Vertex3D::Vertex3D()
+    :
+    m_Coordinates(0.0,0.0,0.0)
     , vertexSaliency(0.0)
 {
 
@@ -15,10 +15,11 @@ Vertex3D::Vertex3D() :
  * @brief Vertex3D::Vertex3D class construction
  * @param pOrig
  */
-Vertex3D::Vertex3D(const Vertex3D& pOrig) : Vertex2D(pOrig)
+Vertex3D::Vertex3D(const Vertex3D& pOrig)
+    :
+    m_Coordinates(pOrig.m_Coordinates)
 {
-    this->m_Z=pOrig.m_Z;
-    //this->vertexSaliency=orig.saliency();
+
 }
 
 Vertex3D::~Vertex3D() {
@@ -32,49 +33,101 @@ Vertex3D::~Vertex3D() {
  */
 Vertex3D::Vertex3D(double pX, double pY, double pZ)
 :
-    Vertex2D(pX,pY)
-    , m_Z(pZ)
+    m_Coordinates(pX, pY, pZ)
     , vertexSaliency(0.0)
 {
 
 }
 
+
+Vertex3D::Vertex3D(const glm::vec3& pCoords)
+    :
+    m_Coordinates(pCoords)
+    , vertexSaliency(0.0)
+{
+
+}
+
+
+void Vertex3D::setX(double pX)
+{
+    this->m_Coordinates.x = pX;
+}
+
+void Vertex3D::setY(double pY)
+{
+    this->m_Coordinates.y = pY;
+}
+
 void Vertex3D::setZ(double pZ)
 {
-    this->m_Z = pZ;
+    this->m_Coordinates.z = pZ;
+}
+
+
+double Vertex3D::getX()
+{
+    return m_Coordinates.x;
+}
+
+double Vertex3D::getX() const
+{
+    return m_Coordinates.x;
+}
+
+
+double Vertex3D::getY()
+{
+    return m_Coordinates.y;
+}
+
+double Vertex3D::getY() const
+{
+    return m_Coordinates.y;
 }
 
 double Vertex3D::getZ()
 {
-    return m_Z;
+    return m_Coordinates.z;
 }
 
 double Vertex3D::getZ() const
 {
-    return m_Z;
+    return m_Coordinates.z;
 }
 
 
-double Vertex3D::Norm()
+glm::vec3 Vertex3D::GetCoordinates() const
 {
-    return sqrt(m_X*m_X + m_Y*m_Y + m_Z*m_Z);
+    return m_Coordinates;
 }
 
-double Vertex3D::Norm(const Vertex3D& pOth)
+
+double Vertex3D::SquaredMagnitude()
 {
-    return sqrt((pOth.getX() - m_X)*(pOth.getX() - m_X) +
-                + (pOth.getY() - m_Y)*(pOth.getY() - m_Y) +
-                + (pOth.getZ() - m_Z)*(pOth.getZ() - m_Z));
+    return glm::length2(m_Coordinates);
 }
+
+double Vertex3D::SquaredDistance(const Vertex3D& pOth)
+{
+    return glm::length2(pOth.GetCoordinates() - m_Coordinates);
+}
+
+
+double Vertex3D::prodscal(const Vertex3D& v1,const Vertex3D& v2)
+{
+    return glm::dot(v1.GetCoordinates(), v2.GetCoordinates());
+}
+
 
 double Vertex3D::prodscal(const Vertex3D& pOther)
 {
-    return ((pOther.getX())*(m_X))+((pOther.getY())*(m_Y))+((pOther.getZ())*(m_Z));
+    return glm::dot(m_Coordinates, pOther.GetCoordinates());
 }
 
 
 bool operator== (const Vertex3D &p, const Vertex3D &q) {
-    return ((p.m_X == q.m_X) && (p.m_Y == q.m_Y) && (p.m_Z == q.m_Z));
+    return p.GetCoordinates() == q.GetCoordinates();
 }
 
 bool operator !=(const Vertex3D& p, const Vertex3D& q) {
