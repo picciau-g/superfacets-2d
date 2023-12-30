@@ -7,6 +7,7 @@ Vertex3D::Vertex3D()
     :
     m_Coordinates(0.0,0.0,0.0)
     , vertexSaliency(0.0)
+    , m_VTstar(-1)
 {
 
 }
@@ -18,6 +19,8 @@ Vertex3D::Vertex3D()
 Vertex3D::Vertex3D(const Vertex3D& pOrig)
     :
     m_Coordinates(pOrig.m_Coordinates)
+    , vertexSaliency(pOrig.vertexSaliency)
+    , m_VTstar(pOrig.m_VTstar)
 {
 
 }
@@ -35,6 +38,7 @@ Vertex3D::Vertex3D(double pX, double pY, double pZ)
 :
     m_Coordinates(pX, pY, pZ)
     , vertexSaliency(0.0)
+    , m_VTstar(-1)
 {
 
 }
@@ -44,6 +48,7 @@ Vertex3D::Vertex3D(const glm::vec3& pCoords)
     :
     m_Coordinates(pCoords)
     , vertexSaliency(0.0)
+    , m_VTstar(-1)
 {
 
 }

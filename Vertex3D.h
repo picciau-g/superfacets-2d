@@ -1,11 +1,11 @@
 #ifndef _VERTEX3D_H
 #define	_VERTEX3D_H
 
-#include "Vertex2D.h"
+#include <glm/glm.hpp>>
 #include <glm/gtx/norm.hpp>
 
 /// An inner-class, extending Vertex2D, representing a vertex in a triangle mesh
-class Vertex3D : public Vertex
+class Vertex3D
 {
 public:
     ///A constructor method
@@ -28,6 +28,12 @@ public:
     friend bool operator== (const Vertex3D& pP, const Vertex3D &pQ);
     ///
     friend bool operator!= (const Vertex3D& pP, const Vertex3D &pQ);
+
+
+    //manage the VTstar relation (vertex to a face)
+    inline void SetVTStar(int pV) {m_VTstar = pV;}
+    inline int VTstar() {return m_VTstar;}
+    inline void VTstar(int pT) {m_VTstar = pT;}
 
     ///A public method that returns the x coordinate
     /*!
@@ -146,6 +152,7 @@ private:
     ///A protected variable representing the m_Z coordinate of the point
     glm::vec3 m_Coordinates;
     double vertexSaliency;
+    int m_VTstar;
 
 };
 
