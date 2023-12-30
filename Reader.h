@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "Vertex2D.h"
+//#include "Vertex2D.h"
 #include "Vertex3D.h"
 #include "Mesh.h"
 #include "Triangle.h"
@@ -20,7 +20,7 @@ public:
      * \param path a string argument, represent the path to the mesh file
      * \return a boolean value, true if the file is correctly readed, false otherwise
      */
-    static bool readMeshFile(Mesh<Vertex2D,Triangle>& mesh, string path);
+    //static bool readMeshFile(Mesh<Vertex2D,Triangle>& mesh, string path);
     static bool readMeshFile(Mesh<Vertex3D,Triangle>& mesh, string path);
     static bool readOFFMesh(Mesh<Vertex3D, Triangle>& mesh, string path);
 private:

@@ -38,7 +38,6 @@ INCLUDEPATH += "/opt/homebrew/Cellar/glm/0.9.9.8/include"
 
 SOURCES += main.cpp \
     Vertex3D.cpp \
-    Vertex2D.cpp \
     Triangle.cpp \
     Timer.cpp \
     segmenter.cpp \
@@ -52,7 +51,6 @@ SOURCES += main.cpp \
 
 HEADERS += \
     Vertex3D.h \
-    Vertex2D.h \
     Triangle.h \
     Timer.h \
     Sorting.h \

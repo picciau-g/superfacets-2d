@@ -22,27 +22,11 @@ public:
     void setTT(int pos, int adjId);
 
     inline void setTV(int pos, int v){
-        vertices[pos]=v;
+        m_Vertices[pos]=v;
     }
 
-    inline bool operator== (const Triangle &p)
-    {
-        bool b[3];
-        b[0] = false; b[1] = false; b[2] = false;
-        for(int i=0;i<3;i++)
-        {
-            for(int j=0;j<3;j++)
-            {
-                if(!b[j] && p.vertices[i]==this->vertices[j])
-                {
-                    b[j] = true;
-                    break;
-                }
-            }
-        }
+    bool operator== (const Triangle &p) const;
 
-        return b[0] && b[1] && b[2];
-    }
 
     inline bool operator!= (const Triangle p)
     {
@@ -51,22 +35,33 @@ public:
 
     inline int vertex_index(int v){
         for(int i=0; i<3; i++){
-            if(vertices[i] == v) return i;
+            if(m_Vertices[i] == v) return i;
         }
         return -1;
     }
 
     inline bool contains(int v){
         for(int i=0; i<3; i++){
-            if(vertices[i] == v) return true;
+            if(m_Vertices[i] == v) return true;
         }
         return false;
     }
 
+    inline glm::ivec3 Vertices() const
+    {
+        return m_Vertices;
+    }
+
+    inline glm::ivec3 Adjacencies() const
+    {
+        return m_Adjacencies;
+    }
+
+
 private:
-    int vertices[3];
+    glm::ivec3 m_Vertices;
     ///
-    int adj[3];
+    glm::ivec3 m_Adjacencies;
 };
 
 

@@ -12,10 +12,9 @@ Triangle::Triangle()
  * @param v3 third vertex
  */
 Triangle::Triangle(int v1, int v2, int v3)
+    :
+    m_Vertices(glm::ivec3(v1, v2, v3))
 {
-    this->vertices[0] = v1;
-    this->vertices[1] = v2;
-    this->vertices[2] = v3;
 }
 
 /**
@@ -25,7 +24,7 @@ Triangle::Triangle(int v1, int v2, int v3)
  */
 int Triangle::TV(int pos)
 {
-    return this->vertices[pos];
+    return m_Vertices[pos];
 }
 
 /**
@@ -35,7 +34,7 @@ int Triangle::TV(int pos)
  */
 Edge* Triangle::TE(int pos)
 {
-    return new Edge(vertices[(pos+1)%3],vertices[(pos+2)%3]);
+    return new Edge(m_Vertices[(pos+1)%3],m_Vertices[(pos+2)%3]);
 }
 
 /**
@@ -45,7 +44,7 @@ Edge* Triangle::TE(int pos)
  */
 int Triangle::TT(int pos)
 {
-    return this->adj[pos];
+    return this->m_Adjacencies[pos];
 }
 
 /**
@@ -55,7 +54,7 @@ int Triangle::TT(int pos)
  */
 void Triangle::setTT(int pos, int adjId)
 {
-    this->adj[pos]=adjId;
+    this->m_Adjacencies[pos]=adjId;
 }
 
 /**
@@ -65,4 +64,12 @@ void Triangle::setTT(int pos, int adjId)
 int Triangle::getVerticesNum()
 {
     return 3;
+}
+
+
+bool Triangle::operator==(const Triangle& pOth) const
+{
+    return m_Vertices == pOth.Vertices() ||
+           (m_Vertices.x == pOth.Vertices().y && m_Vertices.y == pOth.Vertices().z && m_Vertices.z == pOth.Vertices().x) ||
+           (m_Vertices.x == pOth.Vertices().z && m_Vertices.z == pOth.Vertices().y && m_Vertices.y == pOth.Vertices().x);
 }

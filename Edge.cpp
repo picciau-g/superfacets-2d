@@ -8,9 +8,16 @@ Edge::Edge() {}
  * @param v2 index of the second vertex
  */
 Edge::Edge(int v1, int v2)
+    :
+    m_vertIndices(glm::vec2(v1,v2))
 {
-    this->vertices[0] = v1;
-    this->vertices[1] = v2;
+}
+
+Edge::Edge(const Edge& pOth)
+    :
+    m_vertIndices(pOth.m_vertIndices)
+{
+
 }
 
 /**
@@ -20,5 +27,12 @@ Edge::Edge(int v1, int v2)
  */
 int Edge::EV(int pos)
 {
-    return this->vertices[pos];
+    return (pos == 0) ? m_vertIndices.x : m_vertIndices.y;
+}
+
+
+bool Edge::operator==(const Edge &p) const
+{
+    return m_vertIndices == p.VertexIndices() ||
+           (m_vertIndices.x == p.VertexIndices().y && m_vertIndices.y == p.VertexIndices().x);
 }

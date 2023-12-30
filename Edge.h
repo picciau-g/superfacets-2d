@@ -5,40 +5,31 @@
  * @brief The Edge class stores minimal information about edges of a mesh
  */
 
+#include <glm/glm.hpp>
+
 class Edge
 {
 public:
     Edge();
     Edge(int v1, int v2);
+    Edge(const Edge& pOth);
 
     int EV(int pos);
 
-    inline bool operator== (const Edge &p)
-    {
-        bool b[2];
-        b[0] = false; b[1] = false;
-        for(int i=0;i<2;i++)
-        {
-            for(int j=0;j<2;j++)
-            {
-                if(!b[j] && p.vertices[i]==this->vertices[j])
-                {
-                    b[j] = true;
-                    break;
-                }
-            }
-        }
+    bool operator== (const Edge &p) const;
 
-        return b[0] && b[1];
+    inline glm::vec2 VertexIndices() const
+    {
+        return m_vertIndices;
     }
 
-    inline bool operator!= (Edge &p)
+    inline bool operator!= (Edge &p) const
     {
        return !(p==(*this));
     }
 
 private:
-    int vertices[2];
+    glm::vec2 m_vertIndices;
 };
 
 
