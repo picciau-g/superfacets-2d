@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <cstdlib>
 #include <iostream>
@@ -10,23 +11,24 @@
 
 #include "Sorting.h"
 #include "Edge.h"
+#include "Vertex3D.h"
 
 /*
 True iff v is an endpoint of edge v1-v2
 */
 #define is_endpoint(v,v1,v2) ( ( (v)==(v1) ) || ( (v)==(v2) ) )
+
 enum versus { CW=0 , CCW=1 };
-using namespace std;
 
 /// A class representing a generic mesh parametrized by the type of top simplexes
-template<class V, class T>
+template<class T>
 class Mesh
 {
 public:
     ///A constructor method
     Mesh();
     ///A constructor method
-    Mesh(const Mesh& orig);
+    Mesh(const Mesh& pOrig);
     ///A destructor method
     virtual ~Mesh();
     ///A public method that returns the vertex at the i-th position in the mesh list
@@ -34,265 +36,246 @@ public:
      * \param id an integer argument, representing the position in the list
      * \return a Vertex&, the vertex at the id-th position in the list
      */
-    V& getVertex(int id);
+    inline Vertex3D& GetVertex(int pId) { return m_Vertices[pId]; }
     ///A public method that returns the number of mesh vertices
     /*!
      * \return an integer, representing the number of vertices
      */
-    int getNumVertex();
+    inline int GetNumVertices() { return m_Vertices.size(); }
+
     ///A public method that adds a vertex to the vertices list
     /*!
      * \param v a Vertex& argument, representing the vertex to add
      */
-    void addVertex(V& v);
-    ///A public method that returns the tetrahedron at the i-th position in the mesh list
+    inline void AddVertex(const Vertex3D& pV) { m_Vertices.push_back(pV); }
+
+    ///A public method that returns the face at the i-th position in the mesh list
     /*!
      * \param id an integer argument, representing the position in the list
-     * \return a T&, the tetrahedron at the id-th position in the list
+     * \return a T&, the face at the id-th position in the list
      */
-    T& getTopSimplex(int id);
+    inline T& GetTopSimplex(int pId) { return m_TopSimplexes[pId]; }
     ///A public method that returns the number of top simplexes
     /*!
      * \return an integer, representing the number of top simplexes
      */
-    int getTopSimplexesNum();
+    inline int GetNumberOfTopSimplexes() { return m_TopSimplexes.size(); }
     ///A public method that adds a top simplex to the top simplexes list
     /*!
      * \param t a T& argument, representing the top simplex to add
      */
-    void addTopSimplex(T& t);
+    inline void AddTopSimplex(const T& t) { m_TopSimplexes.push_back(t); }
+
     ///A public method that initializes the space needed by the vertices and top simplexes lists
     /*!
      * \param numV an integer, represents the number of vertices
      * \param numT an integer, represents the number of top simplexes
      */
-    void reserveVectorSpace(int numV, int numT);
-    void reserveVectorSpace_TopSimplexes(int numT);
-    void reserveVectorSpace_Vertices(int numV);
+    void ReserveVectorSpace(int pNumV, int pNumT);
+    void ReserveVectorSpace_TopSimplexes(int pNumT);
+    void ReserveVectorSpace_Vertices(int pNumV);
 
-    void build();
+    void Build();
 
-    bool half_edge_collapse(int v1, int v2, int t1, int t2);
-    bool convex_neighborhood(int v1, int v2, int t1, int t2);
+    bool HalfedgeCollapse(int pV1, int pV2, int pT1, int pT2);
+    bool ConvexNeighborhood(int pV1, int pV2, int pT1, int pT2);
 
 
-    vector<int> VT(int center);
-    vector<Edge*> VE(int center);
-    vector<int> VV(int center);
+    std::vector<int> VT(int pCenter);
+    std::vector<Edge*> VE(int pCenter);
+    std::vector<int> VV(int pCenter);
 
-    bool isBoundary(int center);
-    bool is_alive(int f){return !removed_triangle[f];}
-    bool is_v_alive(int v){return !removed_vertex[v];}
-    void reorder_triangulation();
+    bool IsBoundary(int pCenter);
+    inline bool IsAlive(int pF){return !m_RemovedTriangle[pF];}
+    inline bool IsVAlive(int pV){return !m_RemovedVertex[pV];}
+    void ReorderTriangulation();
 
 
     //compute cosinus of angle formed by 3 vertices
-    double cosAngle(int v1, int v2, int v3);
+    double CosAngle(int pV1, int pV2, int pV3);
     //compute total area of triangles incident in v
     double FanArea(int v);
     //compute triangle area
-    double TArea(int t);
+    double TriangleArea(int t);
     //computes area of the whole mesh
-    double MArea();
+    double MeshArea();
     //barycenter
     void Barycenter();
 
-    inline vector<double> retBarycenter(){
-        return this->coordsOfB;
-    }
+    inline glm::vec3 GetBarycenter() const { return m_Barycenter; }
 
-    int VIndexInT(int v, int t);
-    int NextTAroundV(int t, int v, versus verso);
+    int VIndexInT(int pV, int pT);
+    int NextTAroundV(int pT, int pV, versus pVerso);
 
     //compute the mixed (Voronoi-barycentric) area around vertex v
-    double VoronoiBarycentricArea(int v);
+    double VoronoiBarycentricArea(int pV);
     //compute either the Voronoi area (if all angles of t are acute) or the
     //barycentric area (otherwise) of triangle t centered in its vertex v
-    double VoronoiBarycentricArea(int v, int t);
+    double VoronoiBarycentricArea(int pV, int pT);
 
 
-    vector<int> ET(Edge e);
-    vector<Edge*> EE(Edge e);
+    std::vector<int> ET(const Edge& pE);
+    std::vector<Edge*> EE(const Edge& pE);
 
 
     //Utility Function
-    template<class C> bool isIntoVector(C c, vector<C> &c_vect);
+    template<class C> bool IsIntoVector(C c, const std::vector<C>& c_vect);
 
-protected:
+
+private:
+    void FindAdjacencies();
+    void FindIncidencies();
+    void LinkAdjacencies(int pT1, int pT2);
+    int ValidVertex(int pV);
+    int ValidTriangle(int pT);
+
+private:
     ///A private varible representing the vertices list of the mesh
-    vector<V> vertices;
+    std::vector<Vertex3D> m_Vertices;
     ///A private varible representing the top simplexes list of the mesh
-    vector<T> topSimplexes;
+    std::vector<T> m_TopSimplexes;
 
-    vector<bool> removed_vertex;
-    vector<bool> removed_triangle;
+    std::vector<bool> m_RemovedVertex;
+    std::vector<bool> m_RemovedTriangle;
 
     //the barycenter
-    vector<double> coordsOfB;
+    glm::vec3 m_Barycenter;
 
-    void find_adjacencies();
-    void find_incidencies();
-    void link_adj (int t1, int t2);
-    int valid_vertex(int v);
-    int valid_triangle(int t);
 };
 
-template<class V, class T>
-Mesh<V,T>::Mesh() {
-    vertices = vector<V>();
-    topSimplexes = vector<T>();
-}
 
-template<class V, class T>
-Mesh<V,T>::Mesh(const Mesh& orig) {
-    this->vertices = orig.vertices;
-    this->topSimplexes = orig.topSimplexes;
-}
-
-template<class V, class T>
-Mesh<V,T>::~Mesh() {
-    vertices.clear();
-    topSimplexes.clear();
-}
-
-template<class V, class T>
-V& Mesh<V,T>::getVertex(int id){
-    return this->vertices.at(id);
-}
-
-template<class V, class T>
-int Mesh<V,T>::getNumVertex(){
-    return this->vertices.size();
-}
-
-template<class V, class T>
-void Mesh<V,T>::addVertex(V& v){
-    this->vertices.push_back(v);
-}
-
-template<class V, class T>
-T& Mesh<V,T>::getTopSimplex(int id){
-    return this->topSimplexes.at(id);
-}
-
-template<class V, class T>
-int Mesh<V,T>::getTopSimplexesNum(){
-    return this->topSimplexes.size();
-}
-
-template<class V, class T>
-void Mesh<V,T>::reserveVectorSpace(int numV, int numT){
-    this->vertices.reserve(numV);
-    this->topSimplexes.reserve(numT);
-}
-
-template<class V, class T>
-void Mesh<V,T>::reserveVectorSpace_Vertices(int numV)
+template<class T>
+Mesh<T>::Mesh()
+    :
+    m_Vertices(std::vector<Vertex3D>())
+    , m_TopSimplexes(std::vector<T>())
 {
-    this->vertices.reserve(numV);
+
 }
 
-template<class V, class T>
-void Mesh<V,T>::reserveVectorSpace_TopSimplexes(int numT)
+template<class T>
+Mesh<T>::Mesh(const Mesh& pOrig)
+    :
+    m_Vertices(pOrig.m_Vertices)
+    , m_TopSimplexes(pOrig.m_TopSimplexes)
 {
-    this->topSimplexes.reserve(numT);
 }
 
-template<class V, class T>
-void Mesh<V,T>::addTopSimplex(T& t){
-    this->topSimplexes.push_back(t);
-}
-
-template<class V, class T>
-void Mesh<V,T>::build()
+template<class T>
+Mesh<T>::~Mesh()
 {
-    this->find_adjacencies();
-    this->find_incidencies();
-    removed_triangle = vector<bool>(getTopSimplexesNum(),false);
-    removed_vertex = vector<bool>(getNumVertex(),false);
+    m_Vertices.clear();
+    m_TopSimplexes.clear();
 }
 
-template<class V, class T>
-void Mesh<V,T>::find_adjacencies()
+template<class T>
+void Mesh<T>::ReserveVectorSpace(int numV, int numT)
 {
-    aux *tr_vec ;
-    int i, j, k;
-    int t1, t2;
-    int v1, v2;
+    m_Vertices.reserve(numV);
+    m_TopSimplexes.reserve(numT);
+}
 
-    tr_vec = (aux*) calloc( this->getTopSimplexesNum()*3 , sizeof(aux) ) ;
-    if (!tr_vec)
+template<class T>
+void Mesh<T>::ReserveVectorSpace_Vertices(int numV)
+{
+    m_Vertices.reserve(numV);
+}
+
+template<class T>
+void Mesh<T>::ReserveVectorSpace_TopSimplexes(int numT)
+{
+    m_TopSimplexes.reserve(numT);
+}
+
+
+template< class T>
+void Mesh<T>::Build()
+{
+    FindAdjacencies();
+    FindIncidencies();
+    m_RemovedTriangle = std::vector<bool>(GetNumberOfTopSimplexes(),false);
+    m_RemovedVertex = std::vector<bool>(GetNumVertices(),false);
+}
+
+template<class T>
+void Mesh<T>::FindAdjacencies()
+{
+    //aux *tr_vec ;
+    std::vector<aux> tr_vec;
+
+    tr_vec.reserve(GetNumberOfTopSimplexes()*3);
+    int k = 0;
+
+    for (int j=0; j<GetNumberOfTopSimplexes(); j++)
     {
-        cerr << "malloc fallita in find_adj" <<endl;
-        return;
-    }
-
-    k = 0;
-
-    for (j=0; j<this->getTopSimplexesNum(); j++)
-    {
-        for (i=0;i<3;i++)
+        for (int i=0;i<3;i++)
         {
             tr_vec[k].t = j;
-            this->getTopSimplex(j).setTT(i,-1);
+            GetTopSimplex(j).setTT(i,-1);
             //            tl->elem[j]->adj[i] = -1;
-            v1 = this->getTopSimplex(j).TV(i);
+            int v1 = GetTopSimplex(j).TV(i);
             //            v1 = tl->elem[j]->v[i];
-            v2 = this->getTopSimplex(j).TV((i+1)%3);
+            int v2 = GetTopSimplex(j).TV((i+1)%3);
             //            v2 = tl->elem[j]->v[(i+1)%3];
-            if (v1<v2) {  tr_vec[k].v1 = v1; tr_vec[k].v2 = v2;  }
-            else {  tr_vec[k].v1 = v2; tr_vec[k].v2 = v1;  }
+            if (v1<v2)
+            {
+                tr_vec[k].v1 = v1;
+                tr_vec[k].v2 = v2;
+            }
+            else
+            {
+                tr_vec[k].v1 = v2;
+                tr_vec[k].v2 = v1;
+            }
             k++;
         }
     }
 
-    qsort(tr_vec,3*this->getTopSimplexesNum(),sizeof(aux),cmp_aux) ;
+    std::sort(tr_vec.begin(), tr_vec.end(), CompareAux);
 
-    for(k=0;k<3*this->getTopSimplexesNum()-1;k++)
+    for(k=0; k<3*GetNumberOfTopSimplexes()-1; k++)
     {
         if ( is_endpoint(tr_vec[k].v1,tr_vec[k+1].v1,tr_vec[k+1].v2) &&
              is_endpoint(tr_vec[k].v2,tr_vec[k+1].v1,tr_vec[k+1].v2) )
         {  /* i due triangoli hanno lo stesso lato */
-            t1 = tr_vec[k].t;
-            t2 = tr_vec[k+1].t;
-            link_adj(t1,t2);
+            int t1 = tr_vec[k].t;
+            int t2 = tr_vec[k+1].t;
+            LinkAdjacencies(t1,t2);
         }
     }
-    free(tr_vec) ;
+    tr_vec.clear();
     return;
 }
 
-template<class V, class T>
-void Mesh<V,T>::find_incidencies()
+template<class T>
+void Mesh<T>::FindIncidencies()
 {
-    int i, t;
-
-    for (t=0;t<this->getTopSimplexesNum();t++)
+    for (int t=0; t<GetNumberOfTopSimplexes(); t++)
     {
-        for (i=0;i<3;i++)
+        for (int i=0; i<3; i++)
         {
-            if(this->getVertex(this->getTopSimplex(t).TV(i)).VTstar()==-1)
-                this->getVertex(this->getTopSimplex(t).TV(i)).VTstar(t);
-            else if(this->getTopSimplex(t).TT((i+2)%3)==-1)
-                this->getVertex(this->getTopSimplex(t).TV(i)).VTstar(t);
+            if(GetVertex(GetTopSimplex(t).TV(i)).VTstar()==-1)
+                GetVertex(GetTopSimplex(t).TV(i)).VTstar(t);
+            else if(GetTopSimplex(t).TT((i+2)%3)==-1)
+                GetVertex(GetTopSimplex(t).TV(i)).VTstar(t);
         }
     }
     return;
 }
 
-template<class V, class T>
-void Mesh<V,T>::link_adj(int t1, int t2)
+template<class T>
+void Mesh<T>::LinkAdjacencies(int pT1, int pT2)
         /* Lega t1 come adiacente di t2 e viceversa */
 {
-    int i, j, k, pos1[2], pos2[2];
-    if (valid_triangle(t1) && valid_triangle(t2))
+    if (ValidTriangle(pT1) && ValidTriangle(pT2))
     {
-        k = 0;
-        for (i=0; ((i<3)&&(k<2)); i++)
+        int k = 0;
+        int pos1[2], pos2[2];
+        for (int i=0; ((i<3)&&(k<2)); i++)
         {
-            for (j=0; ((j<3)&&(k<2)); j++)
+            for (int j=0; ((j<3)&&(k<2)); j++)
             {
-                if(this->getTopSimplex(t1).TV(i) == this->getTopSimplex(t2).TV(j))
+                if(GetTopSimplex(pT1).TV(i) == GetTopSimplex(pT2).TV(j))
                 {
                     pos1[k] = i;
                     pos2[k] = j;
@@ -300,106 +283,111 @@ void Mesh<V,T>::link_adj(int t1, int t2)
                 }
             }
         }
+
         if (k<2)
         {
-            cerr << "error in link_adj" <<endl;
+            std::cerr << "error in link_adj" << std::endl;
         }
         else
         {
-            this->getTopSimplex(t1).setTT(3-pos1[0]-pos1[1],t2);
-            this->getTopSimplex(t2).setTT(3-pos2[0]-pos2[1],t1);
+            GetTopSimplex(pT1).setTT(3-pos1[0]-pos1[1],pT2);
+            GetTopSimplex(pT2).setTT(3-pos2[0]-pos2[1],pT1);
         }
     }
     else
-        cerr << "Error in link_adj: almeno uno dei triangoli e' nullo" << endl;
+        std::cerr << "Error in link_adj: at least one of the triangles is NULL" << std::endl;
 }
 
-template<class V, class T>
-int Mesh<V,T>::valid_vertex(int v)
+template<class T>
+int Mesh<T>::ValidVertex(int v)
 {
-    return ( (v>=0) && (v<this->getNumVertex()) );
+    return ( (v>=0) && (v < GetNumVertices()) );
 }
 
-template<class V, class T>
-int Mesh<V,T>::valid_triangle(int t)
+template<class T>
+int Mesh<T>::ValidTriangle(int t)
 {
-    return ( (t>=0) && (t<this->getTopSimplexesNum()) );
+    return ( (t>=0) && (t < GetNumberOfTopSimplexes()) );
 }
 
-template<class V, class T>
-vector<int> Mesh<V,T>::VT(int center)
+template<class T>
+std::vector<int> Mesh<T>::VT(int pCenter)
 {
-    vector<int> triangles;
+    std::vector<int> triangles;
     int pred = -1;
-    int current = this->getVertex(center).VTstar();
-    triangles.push_back(this->getVertex(center).VTstar());
+    int current = GetVertex(pCenter).VTstar();
+    triangles.push_back(GetVertex(pCenter).VTstar());
 
     int k=-1;
 
-    //cerco la posizione del vertice nell'array dei vertici del triangolo
-    for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+    //look for the vertex position in the triangle vertices array
+    for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
     {
-        if(this->getTopSimplex(current).TV(i) == center)
+        if(GetTopSimplex(current).TV(i) == pCenter)
         {
             k = i;
             break;
         }
     }
 
-    //scelgo un giro a caso da prendere
+    //choose a random turn
     pred = current;
-    current = this->getTopSimplex(current).TT((k+1)%3);
+    current = GetTopSimplex(current).TT((k+1)%3);
 
     bool isBorder = false;
     while(1)
     {
-        if(current == this->getVertex(center).VTstar())
+        if(current == GetVertex(pCenter).VTstar())
+        {
             break;
+        }
         else if(current == -1)
         {
             isBorder = true;
             break;
         }
         else
+        {
             triangles.push_back(current);
+        }
 
         k=-1;
-        //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+        //look for the vertex position within the triangle vertices array
+        for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
         {
-            if(this->getTopSimplex(current).TV(i) == center)
+            if(GetTopSimplex(current).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
-        }        
-
-        if(this->getTopSimplex(current).TT((k+1)%3) == pred)
-        {
-            pred = current;
-            current = this->getTopSimplex(current).TT((k+2)%3);
         }
-        else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+
+        if(GetTopSimplex(current).TT((k+1)%3) == pred)
         {
             pred = current;
-            current = this->getTopSimplex(current).TT((k+1)%3);
+            current = GetTopSimplex(current).TT((k+2)%3);
+        }
+        else if(GetTopSimplex(current).TT((k+2)%3) == pred)
+        {
+            pred = current;
+            current = GetTopSimplex(current).TT((k+1)%3);
         }
     }
 
-    //se sono in un bordo ciclo anche nell'altro senso per recuperare i triangoli mancanti
+    //if I'm on the border I loop in the other direction to account for triangles I might have missed
     if(isBorder)
     {
-        pred = this->getVertex(center).VTstar();
-        //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(pred).getVerticesNum();i++)
+        pred = GetVertex(pCenter).VTstar();
+        //search the vertex position in the triangle vertices array
+        for(int i=0;i<GetTopSimplex(pred).getVerticesNum();i++)
         {
-            if(this->getTopSimplex(pred).TV(i) == center)
+            if(GetTopSimplex(pred).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
         }
-        current = this->getTopSimplex(pred).TT((k+2)%3);
+        current = GetTopSimplex(pred).TT((k+2)%3);
 
         while(1)
         {
@@ -410,9 +398,9 @@ vector<int> Mesh<V,T>::VT(int center)
 
             k=-1;
             //cerco la posizione del vertice nell'array dei vertici del triangolo
-            for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+            for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
             {
-                if(this->getTopSimplex(current).TV(i) == center)
+                if(GetTopSimplex(current).TV(i) == pCenter)
                 {
                     k = i;
                     break;
@@ -420,15 +408,15 @@ vector<int> Mesh<V,T>::VT(int center)
             }
 
 
-            if(this->getTopSimplex(current).TT((k+1)%3) == pred)
+            if(GetTopSimplex(current).TT((k+1)%3) == pred)
             {
                 pred = current;
-                current = this->getTopSimplex(current).TT((k+2)%3);
+                current = GetTopSimplex(current).TT((k+2)%3);
             }
-            else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+            else if(GetTopSimplex(current).TT((k+2)%3) == pred)
             {
                 pred = current;
-                current = this->getTopSimplex(current).TT((k+1)%3);
+                current = GetTopSimplex(current).TT((k+1)%3);
             }
         }
     }
@@ -437,98 +425,104 @@ vector<int> Mesh<V,T>::VT(int center)
 }
 
 
-template<class V, class T>
-bool Mesh<V,T>::isBoundary(int center)
+template<class T>
+bool Mesh<T>::IsBoundary(int pCenter)
 {
-    vector<int> triangles;
+    std::vector<int> triangles;
     int pred = -1;
-    int current = this->getVertex(center).VTstar();
-    triangles.push_back(this->getVertex(center).VTstar());
+    int current = GetVertex(pCenter).VTstar();
+    triangles.push_back(GetVertex(pCenter).VTstar());
 
     int k=-1;
 
-    //cerco la posizione del vertice nell'array dei vertici del triangolo
-    for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+    //look for the vertex position in the triangle vertices array
+    for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
     {
-        if(this->getTopSimplex(current).TV(i) == center)
+        if(GetTopSimplex(current).TV(i) == pCenter)
         {
             k = i;
             break;
         }
     }
 
-    //scelgo un giro a caso da prendere
+    //choose a random direction to follow
     pred = current;
-    current = this->getTopSimplex(current).TT((k+1)%3);
+    current = GetTopSimplex(current).TT((k+1)%3);
 
     bool isBorder = false;
     while(1)
     {
-        if(current == this->getVertex(center).VTstar())
+        if(current == GetVertex(pCenter).VTstar())
+        {
             break;
+        }
         else if(current == -1)
         {
             return true;
         }
         else
+        {
             triangles.push_back(current);
+        }
 
         k=-1;
-        //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+
+        //look for the vertex position in the triangle vertices array
+        for(int i=0; i<GetTopSimplex(current).getVerticesNum(); i++)
         {
-            if(this->getTopSimplex(current).TV(i) == center)
+            if(GetTopSimplex(current).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
         }
 
-        if(this->getTopSimplex(current).TT((k+1)%3) == pred)
+        if(GetTopSimplex(current).TT((k+1)%3) == pred)
         {
             pred = current;
-            current = this->getTopSimplex(current).TT((k+2)%3);
+            current = GetTopSimplex(current).TT((k+2)%3);
         }
-        else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+        else if(GetTopSimplex(current).TT((k+2)%3) == pred)
         {
             pred = current;
-            current = this->getTopSimplex(current).TT((k+1)%3);
+            current = GetTopSimplex(current).TT((k+1)%3);
         }
     }
 
-    //se sono in un bordo ciclo anche nell'altro senso per recuperare i triangoli mancanti
     return false;
 }
 
-template<class V, class T>
-vector<Edge*> Mesh<V,T>::VE(int center)
+template<class T>
+std::vector<Edge*> Mesh<T>::VE(int pCenter)
 {
-    vector<Edge*> edges;
+    std::vector<Edge*> edges;
     int pred = -1;
-    int current = this->getVertex(center).VTstar();
+    int current = GetVertex(pCenter).VTstar();
 
     int k=-1;
-    //cerco la posizione del vertice nell'array dei vertici del triangolo
-    for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+    //look for the vertex position in the triangle vertices array
+    for(int i=0; i<GetTopSimplex(current).getVerticesNum(); i++)
     {
-        if(this->getTopSimplex(current).TV(i) == center)
+        if(GetTopSimplex(current).TV(i) == pCenter)
         {
             k = i;
             break;
         }
     }
-    edges.push_back(this->getTopSimplex(current).TE((k+1)%3));
+    edges.push_back(GetTopSimplex(current).TE((k+1)%3));
 
-    //scelgo un giro a caso da prendere
+    //choose a direction to loop in
     pred = current;
-    current = this->getTopSimplex(current).TT((k+1)%3);
+    current = GetTopSimplex(current).TT((k+1)%3);
 
     bool isBorder = false;
 
     while(1)
     {
-        if(current == this->getVertex(center).VTstar())
+        if(current == GetVertex(pCenter).VTstar())
+        {
             break;
+        }
         else if(current == -1)
         {
             isBorder = true;
@@ -536,45 +530,46 @@ vector<Edge*> Mesh<V,T>::VE(int center)
         }
 
         k=-1;
-        //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+
+        //look for the vertex position in the triangle vertices array
+        for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
         {
-            if(this->getTopSimplex(current).TV(i) == center)
+            if(GetTopSimplex(current).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
         }
 
-        if(this->getTopSimplex(current).TT((k+1)%3) == pred)
+        if(GetTopSimplex(current).TT((k+1)%3) == pred)
         {
-            edges.push_back(this->getTopSimplex(current).TE((k+2)%3));
+            edges.push_back(GetTopSimplex(current).TE((k+2)%3));
             pred = current;
-            current = this->getTopSimplex(current).TT((k+2)%3);
+            current = GetTopSimplex(current).TT((k+2)%3);
         }
-        else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+        else if(GetTopSimplex(current).TT((k+2)%3) == pred)
         {
-            edges.push_back(this->getTopSimplex(current).TE((k+1)%3));
+            edges.push_back(GetTopSimplex(current).TE((k+1)%3));
             pred = current;
-            current = this->getTopSimplex(current).TT((k+1)%3);
+            current = GetTopSimplex(current).TT((k+1)%3);
         }
     }
 
-    //se sono in un bordo ciclo anche nell'altro senso per recuperare i triangoli mancanti
+    //if I'm on a boorder, I loop in the other direction to look for missing triangles
     if(isBorder)
     {
-        pred = this->getVertex(center).VTstar();
+        pred = GetVertex(pCenter).VTstar();
         //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(pred).getVerticesNum();i++)
+        for(int i=0;i<GetTopSimplex(pred).getVerticesNum();i++)
         {
-            if(this->getTopSimplex(pred).TV(i) == center)
+            if(GetTopSimplex(pred).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
         }
-        edges.push_back(this->getTopSimplex(pred).TE((k+2)%3));
-        current = this->getTopSimplex(pred).TT((k+2)%3);
+        edges.push_back(GetTopSimplex(pred).TE((k+2)%3));
+        current = GetTopSimplex(pred).TT((k+2)%3);
 
         while(1)
         {
@@ -583,26 +578,26 @@ vector<Edge*> Mesh<V,T>::VE(int center)
 
             k=-1;
             //cerco la posizione del vertice nell'array dei vertici del triangolo
-            for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+            for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
             {
-                if(this->getTopSimplex(current).TV(i) == center)
+                if(GetTopSimplex(current).TV(i) == pCenter)
                 {
                     k = i;
                     break;
                 }
-            }            
-
-            if(this->getTopSimplex(current).TT((k+1)%3) == pred)
-            {
-                edges.push_back(this->getTopSimplex(current).TE((k+2)%3));
-                pred = current;
-                current = this->getTopSimplex(current).TT((k+2)%3);
             }
-            else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+
+            if(GetTopSimplex(current).TT((k+1)%3) == pred)
             {
-                edges.push_back(this->getTopSimplex(current).TE((k+1)%3));
+                edges.push_back(GetTopSimplex(current).TE((k+2)%3));
                 pred = current;
-                current = this->getTopSimplex(current).TT((k+1)%3);
+                current = GetTopSimplex(current).TT((k+2)%3);
+            }
+            else if(GetTopSimplex(current).TT((k+2)%3) == pred)
+            {
+                edges.push_back(GetTopSimplex(current).TE((k+1)%3));
+                pred = current;
+                current = GetTopSimplex(current).TT((k+1)%3);
             }
         }
     }
@@ -610,35 +605,37 @@ vector<Edge*> Mesh<V,T>::VE(int center)
     return edges;
 }
 
-template<class V, class T>
-vector<int> Mesh<V,T>::VV(int center)
+template<class T>
+std::vector<int> Mesh<T>::VV(int pCenter)
 {
-    vector<int> vertices;
+    std::vector<int> vertices;
     int pred = -1;
-    int current = this->getVertex(center).VTstar();
+    int current = GetVertex(pCenter).VTstar();
 
     int k=-1;
-    //cerco la posizione del vertice nell'array dei vertici del triangolo
-    for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+    //look for the vertex position in the triangle vertices array
+    for(int i=0; i<GetTopSimplex(current).getVerticesNum(); i++)
     {
-        if(this->getTopSimplex(current).TV(i) == center)
+        if(GetTopSimplex(current).TV(i) == pCenter)
         {
             k = i;
             break;
         }
-    }    
-    vertices.push_back(this->getTopSimplex(current).TV((k+1)%3));
+    }
+    vertices.push_back(GetTopSimplex(current).TV((k+1)%3));
 
-    //scelgo un giro a caso da prendere
+    //loop in a random direction
     pred = current;
-    current = this->getTopSimplex(current).TT((k+2)%3);
+    current = GetTopSimplex(current).TT((k+2)%3);
 
     bool isBorder = false;
 
     while(1)
     {
-        if(current == this->getVertex(center).VTstar())
+        if(current == GetVertex(pCenter).VTstar())
+        {
             break;
+        }
         else if(current == -1)
         {
             isBorder = true;
@@ -646,73 +643,76 @@ vector<int> Mesh<V,T>::VV(int center)
         }
 
         k=-1;
-        //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+
+        //look for the vertex position in the triangle vertices array
+        for(int i=0;i<GetTopSimplex(current).getVerticesNum();i++)
         {
-            if(this->getTopSimplex(current).TV(i) == center)
+            if(GetTopSimplex(current).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
-        }        
-
-        if(this->getTopSimplex(current).TT((k+1)%3) == pred)
-        {
-            vertices.push_back(this->getTopSimplex(current).TV((k+1)%3));
-            pred = current;
-            current = this->getTopSimplex(current).TT((k+2)%3);
         }
-        else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+
+        if(GetTopSimplex(current).TT((k+1)%3) == pred)
         {
-            vertices.push_back(this->getTopSimplex(current).TV((k+2)%3));
+            vertices.push_back(GetTopSimplex(current).TV((k+1)%3));
             pred = current;
-            current = this->getTopSimplex(current).TT((k+1)%3);
+            current = GetTopSimplex(current).TT((k+2)%3);
+        }
+        else if(GetTopSimplex(current).TT((k+2)%3) == pred)
+        {
+            vertices.push_back(GetTopSimplex(current).TV((k+2)%3));
+            pred = current;
+            current = GetTopSimplex(current).TT((k+1)%3);
         }
     }
 
-    //se sono in un bordo ciclo anche nell'altro senso per recuperare i triangoli mancanti
+    //if I'm on a border I loop in the other direction too to look for missing triangles
     if(isBorder)
     {
-        pred = this->getVertex(center).VTstar();
+        pred = GetVertex(pCenter).VTstar();
         //cerco la posizione del vertice nell'array dei vertici del triangolo
-        for(int i=0;i<this->getTopSimplex(pred).getVerticesNum();i++)
+        for(int i=0; i<GetTopSimplex(pred).getVerticesNum(); i++)
         {
-            if(this->getTopSimplex(pred).TV(i) == center)
+            if(GetTopSimplex(pred).TV(i) == pCenter)
             {
                 k = i;
                 break;
             }
         }
-        vertices.push_back(this->getTopSimplex(pred).TV((k+2)%3));
-        current = this->getTopSimplex(pred).TT((k+1)%3);
+        vertices.push_back(GetTopSimplex(pred).TV((k+2)%3));
+        current = GetTopSimplex(pred).TT((k+1)%3);
 
         while(1)
         {
             if(current == -1)
+            {
                 break;
+            }
 
             k=-1;
-            //cerco la posizione del vertice nell'array dei vertici del triangolo
-            for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
+            //look for the vertex position in the triangle vertices array
+            for(int i=0; i<GetTopSimplex(current).getVerticesNum(); i++)
             {
-                if(this->getTopSimplex(current).TV(i) == center)
+                if(GetTopSimplex(current).TV(i) == pCenter)
                 {
                     k = i;
                     break;
                 }
-            }            
-
-            if(this->getTopSimplex(current).TT((k+1)%3) == pred)
-            {
-                vertices.push_back(this->getTopSimplex(current).TV((k+1)%3));
-                pred = current;
-                current = this->getTopSimplex(current).TT((k+2)%3);
             }
-            else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
+
+            if(GetTopSimplex(current).TT((k+1)%3) == pred)
             {
-                vertices.push_back(this->getTopSimplex(current).TV((k+2)%3));
+                vertices.push_back(GetTopSimplex(current).TV((k+1)%3));
                 pred = current;
-                current = this->getTopSimplex(current).TT((k+1)%3);
+                current = GetTopSimplex(current).TT((k+2)%3);
+            }
+            else if(GetTopSimplex(current).TT((k+2)%3) == pred)
+            {
+                vertices.push_back(GetTopSimplex(current).TV((k+2)%3));
+                pred = current;
+                current = GetTopSimplex(current).TT((k+1)%3);
             }
         }
     }
@@ -720,16 +720,16 @@ vector<int> Mesh<V,T>::VV(int center)
     return vertices;
 }
 
-template<class V, class T>
-vector<int> Mesh<V,T>::ET(Edge e)
+template<class T>
+std::vector<int> Mesh<T>::ET(const Edge& pE)
 {
-    vector<int> triangles;
-    vector<int> vtcomplete_triangles = this->VT(e.EV(0));
-    for(unsigned int i=0;i<vtcomplete_triangles.size();i++)
+    std::vector<int> triangles;
+    std::vector<int> vtcomplete_triangles = this->VT(pE.EV(0));
+    for(unsigned int i=0; i<vtcomplete_triangles.size(); i++)
     {
-        for(int j=0;j<this->getTopSimplex(vtcomplete_triangles.at(i)).getVerticesNum();j++)
+        for(int j=0;j<GetTopSimplex(vtcomplete_triangles.at(i)).getVerticesNum();j++)
         {
-            if(e.EV(1) == this->getTopSimplex(vtcomplete_triangles.at(i)).TV(j))
+            if(pE.EV(1) == GetTopSimplex(vtcomplete_triangles.at(i)).TV(j))
             {
                 triangles.push_back(vtcomplete_triangles.at(i));
                 break;
@@ -740,28 +740,28 @@ vector<int> Mesh<V,T>::ET(Edge e)
     return triangles;
 }
 
-template<class V, class T>
-vector<Edge*> Mesh<V,T>::EE(Edge e)
+template<class T>
+std::vector<Edge*> Mesh<T>::EE(const Edge& pE)
 {
-    vector<Edge*> edges;
-    vector<Edge*> edge0 = this->VE(e.EV(0));
-    vector<Edge*> edge1 = this->VE(e.EV(1));
+    std::vector<Edge*> edges;
+    std::vector<Edge*> edge0 = this->VE(pE.EV(0));
+    std::vector<Edge*> edge1 = this->VE(pE.EV(1));
     for(unsigned int i=0;i<edge0.size();i++)
     {
-        if(e != *edge0.at(i))
+        if(pE != *edge0.at(i))
             edges.push_back(edge0.at(i));
     }
     for(unsigned int i=0;i<edge1.size();i++)
     {
-        if(e != *edge1.at(i))
+        if(pE != *edge1.at(i))
             edges.push_back(edge1.at(i));
     }
 
     return edges;
 }
 
-template<class V, class T>
-template<class C> bool Mesh<V,T> :: isIntoVector(C c, vector<C> &c_vect)
+template<class T>
+template<class C> bool Mesh<T> :: IsIntoVector(C c, const std::vector<C> &c_vect)
 {
     for(unsigned int i=0; i<c_vect.size();i++)
         if(c == c_vect.at(i))
@@ -770,60 +770,63 @@ template<class C> bool Mesh<V,T> :: isIntoVector(C c, vector<C> &c_vect)
 }
 
 
-template<class V, class T>
-void Mesh<V,T> :: reorder_triangulation(){
+template<class T>
+void Mesh<T> :: ReorderTriangulation()
+{
 
-    vector<V> new_vertices;
-    vector<T> new_triangle;
+    std::vector<Vertex3D> new_vertices;
+    std::vector<T> new_triangle;
 
-    vector<int> new_vertex_index = vector<int>(getNumVertex(),-1);
-    vector<int> new_triangle_index = vector<int>(getTopSimplexesNum() ,-1);
+    std::vector<int> new_vertex_index = vector<int>(GetNumVertices(),-1);
+    std::vector<int> new_triangle_index = vector<int>(GetNumberOfTopSimplexes() ,-1);
 
     int verticesNum=0;
     int trianglesNum=0;
-    for(int i=0; i<getNumVertex(); i++){
+    for(int i=0; i<GetNumVertices(); i++)
+    {
 
-        if(!removed_vertex[i]){
-            new_vertices.push_back(getVertex(i));
-            assert(is_alive(getVertex(i).VTstar()));
+        if(!m_RemovedVertex[i])
+        {
+            new_vertices.push_back(GetVertex(i));
+            assert(is_alive(GetVertex(i).VTstar()));
             new_vertex_index[i]=verticesNum++;
         }
     }
 
-    for(int i=0; i<getTopSimplexesNum(); i++){
+    for(int i=0; i<GetNumberOfTopSimplexes(); i++)
+    {
 
-        if(!removed_triangle[i]){
-            for(int j=0; j<3; j++){
-                assert(getTopSimplex(i).TT(j)==-1 || is_alive(getTopSimplex(i).TT(j)));
-                assert(!removed_vertex[getTopSimplex(i).TV(j)]);
+        if(!m_RemovedTriangle[i])
+        {
+            for(int j=0; j<3; j++)
+            {
+                assert(GetTopSimplex(i).TT(j)==-1 || is_alive(GetTopSimplex(i).TT(j)));
+                assert(!m_RemovedVertex[GetTopSimplex(i).TV(j)]);
 
-                getTopSimplex(i).setTV(j,new_vertex_index[getTopSimplex(i).TV(j)]);
+                GetTopSimplex(i).setTV(j,new_vertex_index[GetTopSimplex(i).TV(j)]);
             }
-            new_triangle.push_back(getTopSimplex(i));
+            new_triangle.push_back(GetTopSimplex(i));
             new_triangle_index[i]=trianglesNum++;
         }
     }
 
+    m_Vertices = new_vertices;
+    m_TopSimplexes = new_triangle;
 
+    m_RemovedTriangle = std::vector<bool>(new_triangle.size(), false);
+    m_RemovedVertex = std::vector<bool>(new_vertices.size(), false);
 
-    cout << "triangoli prima " << topSimplexes.size() << " dopo:" << new_triangle.size() << endl;
-    cout << "vertices prima " << vertices.size() << " dopo:" << new_vertices.size() << endl;
-
-    vertices = new_vertices;
-    topSimplexes = new_triangle;
-
-    removed_triangle = vector<bool>(new_triangle.size(), false);
-    removed_vertex = vector<bool>(new_vertices.size(), false);
-
-    for(int i=0; i<getNumVertex(); i++){
-        getVertex(i).VTstar(new_triangle_index[getVertex(i).VTstar()]);
+    for(int i=0; i<GetNumVertices(); i++)
+    {
+        GetVertex(i).VTstar(new_triangle_index[GetVertex(i).VTstar()]);
     }
 
-    for(int i=0; i<getTopSimplexesNum(); i++){
+    for(int i=0; i<GetNumberOfTopSimplexes(); i++)
+    {
 
             for(int j=0; j<3; j++){
-                if(getTopSimplex(i).TT(j) != -1)
-                    getTopSimplex(i).setTT(j, new_triangle_index[getTopSimplex(i).TT(j)]);
+                if(GetTopSimplex(i).TT(j) != -1)
+                    GetTopSimplex(i).setTT(j, new_triangle_index[GetTopSimplex(i).TT(j)]);
             }
 
     }
@@ -832,43 +835,64 @@ void Mesh<V,T> :: reorder_triangulation(){
 
 
 //return the index of vertex v in triangle t
-template< class V, class T> int Mesh<V,T>::VIndexInT(int v, int t)
+template<class T> int Mesh<T>::VIndexInT(int v, int t)
 {
     for(int i=0; i<3; i++)
-        if (this->getTopSimplex(t).TV(i)==v) return i;
+    {
+        if (GetTopSimplex(t).TV(i)==v)
+        {
+            return i;
+        }
+    }
     return -1;
 }
 
-//compute cosinus of angle formed by 3 vertices
-template<class V, class T> double Mesh<V,T>::cosAngle(int v1, int v2, int v3)
+//compute cosinus of angle formed by 3 vertices. The angle is pV1pV2pV3
+template<class T> double Mesh<T>::CosAngle(int pV1, int pV2, int pV3)
 {
-    double norm21=this->getVertex(v2).norma(this->getVertex(v1));
-    double norm23=this->getVertex(v2).norma(this->getVertex(v3));
-    double product=this->getVertex(v2).prodscal(this->getVertex(v1),this->getVertex(v3));
-    double costeta=product/(norm21*norm23);
-    if (costeta>1.0) costeta = 1.0;
-    if (costeta<-1.0) costeta = -1.0;
-    return costeta;
+    //sides adjacent to the angle
+    double norm21 = GetVertex(pV2).SquaredDistance(GetVertex(pV1));
+    if(norm21 == 0.0f)
+    {
+        norm21 = 0.01;
+    }
+    double norm23 = GetVertex(pV2).SquaredDistance(GetVertex(pV3));
+    if(norm23 == 0.0f)
+    {
+        norm23 = 0.01;
+    }
+
+    //opposite side wrt the angle
+    double norm13 = GetVertex(pV3).SquaredDistance(GetVertex(pV1));
+    if(norm13 == 0.0f)
+    {
+        norm13 = 0.01;
+    }
+
+    double numerator = norm21 + norm23 - norm13;
+    double denominator = 2.0 * sqrt(norm21 * norm23); //sqrt(a*b) = sqrt(a)*sqrt(b)
+
+    return numerator / denominator;
 }
 
-//compute total area of triangles incident in v
-template<class V, class T> double Mesh<V,T>::FanArea(int v)
+// //compute total area of triangles incident in v
+template<class T> double Mesh<T>::FanArea(int v)
 {
-    int t;
     double a = 0.0;
 
-    t = this->getVertex(v).VTstar();
+    int t = GetVertex(v).VTstar();
+
     if (t!=-1) do
     {
-        a += TArea(t);
+            a += TriangleArea(t);
         t = NextTAroundV(t,v,CCW);
     }
-    while ( (t!=-1) && (t!=this->getVertex(v).VTstar()) );
+    while ( (t!=-1) && (t!=GetVertex(v).VTstar()) );
 
 
     if(t==-1)
     {
-        t = this->getVertex(v).VTstar();
+        t = GetVertex(v).VTstar();
         if (t!=-1)
         {
             //non calcolo l'area per vtstar perchè è già stato fatto prima
@@ -876,82 +900,76 @@ template<class V, class T> double Mesh<V,T>::FanArea(int v)
         }
         if (t!=-1) do
         {
-            a += TArea(t);
+                a += TriangleArea(t);
             t = NextTAroundV(t,v,CW);
         }
-        while ( (t!=-1) && (t!=this->getVertex(v).VTstar()) );
+        while ( (t!=-1) && (t!=GetVertex(v).VTstar()) );
     }
     return a;
 }
 
 //compute triangle area
-template<class V, class T> double Mesh<V,T>::TArea(int t)
+template<class T> double Mesh<T>::TriangleArea(int pT)
 {
-    int v1,v2,v3;
-    double prodscaluv;
-    double normau;
-    double normav;
-    double cosalpha;
-    double senalpha;
+    int v1=GetTopSimplex(pT).TV(0);
+    int v2=GetTopSimplex(pT).TV(1);
+    int v3=GetTopSimplex(pT).TV(2);
 
-    v1=this->getTopSimplex(t).TV(0);
-    v2=this->getTopSimplex(t).TV(1);
-    v3=this->getTopSimplex(t).TV(2);
-    prodscaluv=this->getVertex(v1).prodscal(this->getVertex(v2),this->getVertex(v3));
-    normau=sqrt(this->getVertex(v1).SquaredDistance(this->getVertex(v2)));
-    normav=sqrt(this->getVertex(v1).SquaredDistance(this->getVertex(v3)));
-    cosalpha = prodscaluv / (normau*normav);
-    senalpha=sqrt(1-(cosalpha*cosalpha));
-    if(cosalpha*cosalpha > 1) senalpha = 0.0001;
-    //if(isnan(senalpha)) senalpha=0.0001;
+    double v1v2 = GetVertex(v1).distance(GetVertex(v2));
+    double v2v3 = GetVertex(v2).distance(GetVertex(v3));
+    double v3v1 = GetVertex(v3).distance(GetVertex(v1));
 
-    return (normau*normav*senalpha)/2;
+    double halfPerimeter = (v1v2 + v2v3 + v3v1) / 2.0;
+
+    return sqrt(halfPerimeter * (halfPerimeter-v1v2) * (halfPerimeter-v2v3) * (halfPerimeter-v3v1));
 }
 
 //returns the area of the whole mesh
-template<class V, class T> double Mesh<V,T>::MArea(){
+template<class T> double Mesh<T>::MeshArea()
+{
 
     double accumulator = 0.0;
 
-    for(unsigned int k = 0; k < this->getTopSimplexesNum(); k++){
-        if(this->TArea(k)>=0)
-            accumulator += this->TArea(k);
+    for(unsigned int k = 0; k < GetNumberOfTopSimplexes(); k++)
+    {
+        if(this->TriangleArea(k)>=0)
+        {
+            accumulator += TriangleArea(k);
+        }
     }
     return accumulator;
 }
 
 //returns the barycenter of the mesh
-template<class V, class T> void Mesh<V,T>::Barycenter(){
+template<class T> void Mesh<T>::Barycenter()
+{
 
     double xx=0.0, yy=0.0, zz=0.0;
 
-    for(unsigned int kk = 0; kk < this->getNumVertex(); kk++){
+    for(unsigned int kk = 0; kk < GetNumVertices(); kk++)
+    {
         xx += this->getVertex(kk).getX();
         yy += this->getVertex(kk).getY();
         zz += this->getVertex(kk).getZ();
     }
 
-    coordsOfB.push_back(xx/this->getNumVertex());
-    coordsOfB.push_back(yy/this->getNumVertex());
-    coordsOfB.push_back(zz/this->getNumVertex());
+    m_Barycenter = glm::vec3(xx/GetNumVertices(), yy/GetNumVertices(), zz/GetNumVertices());
 }
 
 //return the next triangle incident in vertex v, starting form
 //triangle t and moving in sense 'verso'
-template<class V, class T> int Mesh<V,T>::NextTAroundV(int t, int v, versus verso)
+template<class T> int Mesh<T>::NextTAroundV(int t, int v, versus verso)
 {
-    T& tr = this->getTopSimplex(t);
+    T& tr = GetTopSimplex(t);
     int pos = VIndexInT(v, t);
-    if(verso==CW)
-        return tr.TT((pos+1)%3);
-    else
-        return tr.TT((pos+2)%3);
+
+    return (verso == CW) ? tr.TT((pos+1)%3) : tr.TT((pos+2)%3);
 }
 
 //compute barycentric area of triangle t centered at
 //vertex v, where v is a vertex of t.
 //compute Voronoi-barycentric area around vertex v
-template<class V, class T> double Mesh<V,T>::VoronoiBarycentricArea(int v)
+template<class T> double Mesh<T>::VoronoiBarycentricArea(int v)
 {
  double a = 0.0;
  int t = this->getVertex(v).VTstar();
@@ -961,6 +979,7 @@ template<class V, class T> double Mesh<V,T>::VoronoiBarycentricArea(int v)
    t = NextTAroundV(t,v,CCW);
  }
  while ( (t!=-1) && (t!=this->getVertex(v).VTstar()) );
+
  return a;
 }
 
@@ -968,107 +987,41 @@ template<class V, class T> double Mesh<V,T>::VoronoiBarycentricArea(int v)
 //vertex v, where v is a vertex of t.
 //the contribution of t is the Voronoi area if
 //all angles are acute, or the barycentric area otherwise
-template<class V, class T> double Mesh<V,T>::VoronoiBarycentricArea(int v, int t)
+template<class T> double Mesh<T>::VoronoiBarycentricArea(int v, int t)
 {
-   int i, v1, v2;
-   double cos_a, cos_b, cos_c;
-
-// triangle t is v v1 v2
-// a,b,c are the angles in v, v1, v2
-   i = VIndexInT(v,t);
-   v1 = this->getTopSimplex(t).TV((i+1)%3);
-   v2 = this->getTopSimplex(t).TV((i+2)%3);
-   cos_a = cosAngle(v2,v,v1);
-   cos_b = cosAngle(v,v1,v2);
-   cos_c = cosAngle(v1,v2,v);
+   // triangle t is v v1 v2
+   // a,b,c are the angles in v, v1, v2
+   int i = VIndexInT(v,t);
+   int v1 = GetTopSimplex(t).TV((i+1)%3);
+   int v2 = GetTopSimplex(t).TV((i+2)%3);
+   double cos_a = CosAngle(v2,v,v1);
+   double cos_b = CosAngle(v,v1,v2);
+   double cos_c = CosAngle(v1,v2,v);
 
    if ((cos_a<0.0)||(cos_b<0.0)||(cos_c<0.0)) // one is obtuse
    {
      if (cos_a<0.0) // the obtuse angle is in v
-       return 0.5 * TArea(t);
-     else return 0.25 * TArea(t);
+       return 0.5 * TriangleArea(t);
+     else
+         return 0.25 * TriangleArea(t);
    }
    else // Voronoi area
    {
-     double sin_b, cot_b, sin_c, cot_c, e1, e2;
      /* if angles are zero area is zero */
      if (cos_b==1.0) return 0.0;
      if (cos_c==1.0) return 0.0;
 
-     sin_b = sin(acos(cos_b));
-     sin_c = sin(acos(cos_c));
+     double sin_b = sin(acos(cos_b));
+     double sin_c = sin(acos(cos_c));
 
-     cot_b = cos_b / sin_b;
-     cot_c = cos_c / sin_c;
+     double cot_b = cos_b / sin_b;
+     double cot_c = cos_c / sin_c;
 
-     e1 = this->getVertex(v1).norma(this->getVertex(v));
-     e2 = this->getVertex(v2).norma(this->getVertex(v));
+     double e1 = GetVertex(v1).norma(GetVertex(v));
+     double e2 = GetVertex(v2).norma(GetVertex(v));
      return (cot_c*e1*e1 + cot_b*e2*e2) / 8.0;
   }
 }
-
-//template<class V, class T>
-//bool Mesh<V,T>::isBoundary(int center)
-//{
-//    vector<int> triangles;
-//    int pred = -1;
-//    int current = this->getVertex(center).VTstar();
-//    triangles.push_back(this->getVertex(center).VTstar());
-
-//    int k=-1;
-
-//    //cerco la posizione del vertice nell'array dei vertici del triangolo
-//    for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
-//    {
-//        if(this->getTopSimplex(current).TV(i) == center)
-//        {
-//            k = i;
-//            break;
-//        }
-//    }
-
-//    //scelgo un giro a caso da prendere
-//    pred = current;
-//    current = this->getTopSimplex(current).TT((k+1)%3);
-
-////    bool isBorder = false;
-//    while(1)
-//    {
-//        if(current == this->getVertex(center).VTstar())
-//            break;
-//        else if(current == -1)
-//        {
-//            return true;
-//        }
-//        else
-//            triangles.push_back(current);
-
-//        k=-1;
-//        //cerco la posizione del vertice nell'array dei vertici del triangolo
-//        for(int i=0;i<this->getTopSimplex(current).getVerticesNum();i++)
-//        {
-//            if(this->getTopSimplex(current).TV(i) == center)
-//            {
-//                k = i;
-//                break;
-//            }
-//        }
-
-//        if(this->getTopSimplex(current).TT((k+1)%3) == pred)
-//        {
-//            pred = current;
-//            current = this->getTopSimplex(current).TT((k+2)%3);
-//        }
-//        else if(this->getTopSimplex(current).TT((k+2)%3) == pred)
-//        {
-//            pred = current;
-//            current = this->getTopSimplex(current).TT((k+1)%3);
-//        }
-//    }
-
-//    //se sono in un bordo ciclo anche nell'altro senso per recuperare i triangoli mancanti
-//    return false;
-//}
 
 
 #endif // MESH_H

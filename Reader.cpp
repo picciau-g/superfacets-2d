@@ -78,11 +78,12 @@ Reader::~Reader() {}
  * @param path file name
  * @return
  */
-bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
+bool Reader::readMeshFile(Mesh<Triangle> &mesh, string path)
 {
     ifstream input(path.c_str());
 
-    if (input.is_open() == false) {
+    if (input.is_open() == false)
+    {
         cerr << "Error in file " << path << "\nThe file could not exist, be unreadable or incorrect." << endl;
         return false;
     }
@@ -96,10 +97,11 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
         return false;
     }
 
-    mesh.reserveVectorSpace_Vertices(num_vertices);
+    mesh.ReserveVectorSpace_Vertices(num_vertices);
 
     //reads vertices
-    for (int i = 0; i < num_vertices; i++) {
+    for (int i = 0; i < num_vertices; i++)
+    {
         double x, y, z;
 
         input >> x;
@@ -109,7 +111,7 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
             break;
 
         Vertex3D v = Vertex3D(x, y, z);
-        mesh.addVertex(v);
+        mesh.AddVertex(v);
     }
 
     int num_topSimplexes;
@@ -121,15 +123,16 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
         return false;
     }
 
-    mesh.reserveVectorSpace_TopSimplexes(num_topSimplexes);
+    mesh.ReserveVectorSpace_TopSimplexes(num_topSimplexes);
 
     //reads top simplexes
-    for (int i = 0; i < num_topSimplexes; i++) {
+    for (int i = 0; i < num_topSimplexes; i++)
+    {
         int v[3];
         for (int j = 0; j < 3; j++)
             input >> v[j];
         Triangle t = Triangle(v[0], v[1], v[2]);
-        mesh.addTopSimplex(t);
+        mesh.AddTopSimplex(t);
     }
 
     return true;
@@ -143,11 +146,13 @@ bool Reader::readMeshFile(Mesh<Vertex3D, Triangle> &mesh, string path)
  * @param path path to file
  * @return
  */
-bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
+bool Reader::readOFFMesh(Mesh<Triangle> &mesh, string path)
+{
 
     ifstream input(path.c_str());
 
-    if(input.is_open()==false){
+    if(!input.is_open())
+    {
         cerr << "Error in file " << path << "\nThe file could not exist, be unreadable or incorrect." << endl;
         return false;
     }
@@ -155,7 +160,8 @@ bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
     string line;
 
     getline(input,line);
-    if(line.compare("OFF")){
+    if(line.compare("OFF"))
+    {
         cerr << "Error in file " << path << "\nThe file could not exist, be unreadable or incorrect." << endl;
         return false;
     }
@@ -170,15 +176,17 @@ bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
 
     cout<<"V "<<num_vertices<<" T "<<num_topsimplexes<<endl;
 
-    if(num_vertices == 0 || num_topsimplexes == 0){
+    if(num_vertices == 0 || num_topsimplexes == 0)
+    {
         cerr<< "Number of simplexes is 0 Not a valid .off file "<<path<<endl;
         return false;
     }
 
-    mesh.reserveVectorSpace_Vertices(num_vertices);
+    mesh.ReserveVectorSpace_Vertices(num_vertices);
 
     //insert vertices
-    for(unsigned long int i=0;i<num_vertices;i++){
+    for(unsigned long int i=0;i<num_vertices;i++)
+    {
         double x,y,z;
         input >> x;
         input >> y;
@@ -188,13 +196,14 @@ bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
             break;
 
         Vertex3D v = Vertex3D(x,y,z);
-        mesh.addVertex(v);
+        mesh.AddVertex(v);
     }
 
-    mesh.reserveVectorSpace_TopSimplexes(num_topsimplexes);
+    mesh.ReserveVectorSpace_TopSimplexes(num_topsimplexes);
 
     //insert top simplexes
-    for(unsigned long int i=0;i<num_topsimplexes;i++){
+    for(unsigned long int i=0;i<num_topsimplexes;i++)
+    {
         int v[4];
         for(int j=0;j<4;j++)
             input >> v[j];
@@ -203,7 +212,7 @@ bool Reader::readOFFMesh(Mesh<Vertex3D, Triangle> &mesh, string path){
             return false;
         }
         Triangle t = Triangle(v[1],v[2],v[3]);
-        mesh.addTopSimplex(t);
+        mesh.AddTopSimplex(t);
     }
     return true;
 }

@@ -21,8 +21,8 @@ public:
      * \return a boolean value, true if the file is correctly readed, false otherwise
      */
     //static bool readMeshFile(Mesh<Vertex2D,Triangle>& mesh, string path);
-    static bool readMeshFile(Mesh<Vertex3D,Triangle>& mesh, string path);
-    static bool readOFFMesh(Mesh<Vertex3D, Triangle>& mesh, string path);
+    static bool readMeshFile(Mesh<Triangle>& mesh, string path);
+    static bool readOFFMesh(Mesh<Triangle>& mesh, string path);
 private:
     ///A constructor method
     Reader();

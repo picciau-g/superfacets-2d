@@ -14,6 +14,7 @@ public:
     Edge(int v1, int v2);
     Edge(const Edge& pOth);
 
+    int EV(int pos) const;
     int EV(int pos);
 
     bool operator== (const Edge &p) const;

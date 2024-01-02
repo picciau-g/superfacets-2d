@@ -36,7 +36,7 @@ Segmenter::Segmenter()
  */
 void Segmenter::openMeshFile(string mName){
 
-    mesh = Mesh<Vertex3D, Triangle>();
+    mesh = Mesh<Triangle>();
     QString qmn = QString::fromStdString(mName);
     QStringList qsl = qmn.split(".");
 
@@ -49,7 +49,7 @@ void Segmenter::openMeshFile(string mName){
         exit(0);
     }
 
-    mesh.build();
+    mesh.Build();
 }
 
 /**
@@ -67,13 +67,13 @@ void Segmenter::loadMesh(){
     facesCentroids=computeCentroids();
     centerMesh=centerCoordinate();
     nearestT=nearestFace();
-    faceAreas=new float[mesh.getTopSimplexesNum()];
-    norms.reserve(mesh.getTopSimplexesNum()*sizeof(Normals));
+    faceAreas=new float[mesh.GetNumberOfTopSimplexes()];
+    norms.reserve(mesh.GetNumberOfTopSimplexes()*sizeof(Normals));
 
     //Normals
-    for(unsigned int a=0;a<mesh.getTopSimplexesNum();a++){
-        Triangle T=mesh.getTopSimplex(a);
-        Normals n=Normals(mesh.getVertex(T.TV(0)),mesh.getVertex(T.TV(1)),mesh.getVertex(T.TV(2)));
+    for(unsigned int a=0;a<mesh.GetNumberOfTopSimplexes();a++){
+        Triangle T=mesh.GetTopSimplex(a);
+        Normals n=Normals(mesh.GetVertex(T.TV(0)),mesh.GetVertex(T.TV(1)),mesh.GetVertex(T.TV(2)));
         norms.push_back(n);
     }
     //Area of the faces
@@ -90,9 +90,9 @@ void Segmenter::loadMesh(){
     faceDistances.erase(faceDistances.begin(), faceDistances.end());
     angleDistances.erase(angleDistances.begin(), angleDistances.end());
 
-    clusterIndex = new int[mesh.getTopSimplexesNum()];
+    clusterIndex = new int[mesh.GetNumberOfTopSimplexes()];
     if(debugMode)
-        expanded = new int[mesh.getTopSimplexesNum()]; // it will be used only for debug purposes
+        expanded = new int[mesh.GetNumberOfTopSimplexes()]; // it will be used only for debug purposes
 
     //Initialization (all the three methods are possible)
     if(debugMode){
@@ -113,7 +113,7 @@ void Segmenter::loadMesh(){
         cout<<"Seed"<<endl;
         if(debugMode)
             cout<<"start seed placement"<<endl;
-        double meshArea = mesh.MArea();
+        double meshArea = mesh.MeshArea();
         double auxRad = sqrt(meshArea/(NCluster*M_PI));
 
         this->maxD = auxRad/BBDiagonal;
@@ -130,7 +130,7 @@ void Segmenter::loadMesh(){
     if(NCluster < 0){ /// was not passed as parameter
 
         NCluster = 0;
-        for(int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
+        for(int ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
 
             if(NCluster <= clusterIndex[ii])
                 NCluster++;
@@ -151,15 +151,15 @@ Vertex3D Segmenter::centerCoordinate(){
     Vertex3D res;
     float sumX=0.0; float sumY=0.0; float sumZ=0.0;
 
-    for(int ii=0;ii<mesh.getNumVertex();ii++){
+    for(int ii=0;ii<mesh.GetNumVertices();ii++){
 
-        sumX += mesh.getVertex(ii).getX();
-        sumY += mesh.getVertex(ii).getY();
-        sumZ += mesh.getVertex(ii).getZ();
+        sumX += mesh.GetVertex(ii).getX();
+        sumY += mesh.GetVertex(ii).getY();
+        sumZ += mesh.GetVertex(ii).getZ();
     }
-    res.setX(sumX/mesh.getNumVertex());
-    res.setY(sumY/mesh.getNumVertex());
-    res.setZ(sumZ/mesh.getNumVertex());
+    res.setX(sumX/mesh.GetNumVertices());
+    res.setY(sumY/mesh.GetNumVertices());
+    res.setZ(sumZ/mesh.GetNumVertices());
     if(debugMode)
         cout<<"RES "<<res.getX()<<" "<<res.getY()<<" "<<res.getZ()<<endl;
     return res;
@@ -204,14 +204,14 @@ vector<Vertex3D> Segmenter::computeCentroids(){
     vector<Vertex3D> res;
     Vertex3D aux;
 
-    for(int i=0;i<mesh.getTopSimplexesNum();i++){
-        Triangle T=mesh.getTopSimplex(i);
+    for(int i=0;i<mesh.GetNumberOfTopSimplexes();i++){
+        Triangle T=mesh.GetTopSimplex(i);
         int indices[3];
         for(int a=0;a<3;a++)
             indices[a]=T.TV(a);
         Vertex3D v3d[3];
         for(int a=0;a<3;a++){
-            v3d[a]=mesh.getVertex(indices[a]);
+            v3d[a]=mesh.GetVertex(indices[a]);
         }
 
         float valX=0.0, valY=0.0, valZ=0.0;
@@ -254,7 +254,7 @@ Vertex3D Segmenter::halfPoint(Vertex3D v1, Vertex3D v2){
 float Segmenter::centroidDistance(int f1, int f2){
 
     //first triangle
-    Triangle t1 = mesh.getTopSimplex(f1);
+    Triangle t1 = mesh.GetTopSimplex(f1);
 
     int indexT, indV1;
     Vertex3D v1, v2, halfP;
@@ -276,9 +276,9 @@ float Segmenter::centroidDistance(int f1, int f2){
     // Common edge and vertices
     Edge* shared = t1.TE((indexT)%3);
     indV1 = shared->EV(0);
-    v1 = mesh.getVertex(indV1);
+    v1 = mesh.GetVertex(indV1);
     indV1 = shared->EV(1);
-    v2 = mesh.getVertex(indV1);
+    v2 = mesh.GetVertex(indV1);
 
     halfP = halfPoint(v1, v2);
 
@@ -298,9 +298,9 @@ std::unordered_map<edgekey, float> Segmenter::buildFaceDistances(){
 
     std::unordered_map<edgekey, float> FD;
 
-    for(unsigned int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
 
-        Triangle T = mesh.getTopSimplex(ii);
+        Triangle T = mesh.GetTopSimplex(ii);
 
         for(int jj=0; jj<3; jj++){
 
@@ -328,8 +328,8 @@ std::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
 
     std::unordered_map<edgekey, float> aDistances;
 
-    for(int ii=0;ii<mesh.getTopSimplexesNum();ii++){
-        Triangle T=mesh.getTopSimplex(ii);
+    for(int ii=0;ii<mesh.GetNumberOfTopSimplexes();ii++){
+        Triangle T=mesh.GetTopSimplex(ii);
 
         for(int jj=0;jj<3;jj++){
             int f2=T.TT(jj);
@@ -341,8 +341,8 @@ std::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
                 faceind vi1=T.TV((jj+1)%3);
                 faceind vi2=T.TV((jj+2)%3);
 
-                Vertex3D v=mesh.getVertex(vi1);
-                Vertex3D w=mesh.getVertex(vi2);
+                Vertex3D v=mesh.GetVertex(vi1);
+                Vertex3D w=mesh.GetVertex(vi2);
 
                 double diffx=v.getX()-w.getX();
                 double diffy=v.getY()-w.getY();
@@ -405,9 +405,9 @@ std::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
  */
 void Segmenter::buildGlobalDistances(){
 
-    for(unsigned int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
 
-        Triangle T = mesh.getTopSimplex(ii);
+        Triangle T = mesh.GetTopSimplex(ii);
 
         for(int jj=0; jj<3; jj++){
 
@@ -463,11 +463,11 @@ void Segmenter::expansionStep(){
 
     //Calculate the minimum, maximum and average number of expansions (DEBUG PURPOSES)
     if(debugMode){
-        int auxMin=mesh.getTopSimplexesNum();
+        int auxMin=mesh.GetNumberOfTopSimplexes();
         int auxMax=-1;
         float AvgExpansions=0.0;
         int ctrzero=0;
-        for(int i=0;i<mesh.getTopSimplexesNum();i++){
+        for(int i=0;i<mesh.GetNumberOfTopSimplexes();i++){
             AvgExpansions+=expanded[i];
             if(expanded[i]<auxMin)
                 auxMin=expanded[i];
@@ -477,7 +477,7 @@ void Segmenter::expansionStep(){
                 ctrzero++;
             }
         }
-        AvgExpansions /= mesh.getTopSimplexesNum();
+        AvgExpansions /= mesh.GetNumberOfTopSimplexes();
 
         cout<<"Min visits = "<<auxMin<<" Max visits = "<<auxMax<<" average = "<<AvgExpansions<<endl;
         cout<<"There are "<<ctrzero<<" unvisited faces"<<endl;
@@ -532,7 +532,7 @@ void Segmenter::expandSeed(int indexT, int newind){
 
         if(rc.distance(facesCentroids.at(actual.indexP))/BBDiagonal <= maxD*timesR){
             int neigh;
-            Triangle T = mesh.getTopSimplex(actual.indexP);
+            Triangle T = mesh.GetTopSimplex(actual.indexP);
 
             for(int jj=0;jj<3;jj++){
                 neigh=T.TT(jj);
@@ -566,12 +566,12 @@ void Segmenter::placeSeeds(int index){
     regionCentroids[0] = index;
     clusterIndex[index]=0;
 
-    double *distFromSeeds = new double[mesh.getTopSimplexesNum()];
+    double *distFromSeeds = new double[mesh.GetNumberOfTopSimplexes()];
 
     int count=1;
     cout<<"Initializing..."<<endl;
     while(regionCentroids.size()<NCluster){
-        for(int iterFaces = 0; iterFaces < mesh.getTopSimplexesNum(); iterFaces++){
+        for(int iterFaces = 0; iterFaces < mesh.GetNumberOfTopSimplexes(); iterFaces++){
             distFromSeeds[iterFaces] = 0.0;
             if(regionCentroids.count(iterFaces)==0){
 
@@ -632,27 +632,27 @@ void Segmenter::floodInitialization(int indexT){
     //Array to keep track of expanded faces (DEBUG PURPOSES)
     if(debugMode){
 
-        int *expanded = new int[mesh.getTopSimplexesNum()];
-        for(int i=0;i<mesh.getTopSimplexesNum();i++){
+        int *expanded = new int[mesh.GetNumberOfTopSimplexes()];
+        for(int i=0;i<mesh.GetNumberOfTopSimplexes();i++){
             expanded[i]=0;
         }
         expanded[indexT]++; //Mark the seed as expanded
     }
 
     // Initialize the distance graph to infinity for each triangle
-    for(unsigned int ii=0;ii<mesh.getTopSimplexesNum();ii++){
+    for(unsigned int ii=0;ii<mesh.GetNumberOfTopSimplexes();ii++){
         outputDijkstra[ii]=FLT_MAX;
     }
     outputDijkstra[indexT]=0; //Distance of the seed is 0
 
     // Initialize index of each face to -1 (unassigned)
-    for(unsigned int ii=0;ii<mesh.getTopSimplexesNum();ii++)
+    for(unsigned int ii=0;ii<mesh.GetNumberOfTopSimplexes();ii++)
         clusterIndex[ii]=-1;
 
     //Queue that stores all the triangles ordered with respect to their Euclidean distance from the seed
     //we had it to avoid having unassigned faces at the end of the initialization
     cout<<"Enter in the first loop"<<endl;
-    for(unsigned int a=0;a<mesh.getTopSimplexesNum();a++){
+    for(unsigned int a=0;a<mesh.GetNumberOfTopSimplexes();a++){
         pointDist pp;
         pp.indexP=a;
         if(a==indexT)
@@ -695,18 +695,18 @@ void Segmenter::floodInitialization(int indexT){
 void Segmenter::getBBDiagonal(){
 
     //Minimum
-    minCoords.setX(mesh.getVertex(0).getX());
-    minCoords.setY(mesh.getVertex(0).getY());
-    minCoords.setZ(mesh.getVertex(0).getZ());
+    minCoords.setX(mesh.GetVertex(0).getX());
+    minCoords.setY(mesh.GetVertex(0).getY());
+    minCoords.setZ(mesh.GetVertex(0).getZ());
 
     //Maximum
-    maxCoords.setX(mesh.getVertex(0).getX());
-    maxCoords.setY(mesh.getVertex(0).getY());
-    maxCoords.setZ(mesh.getVertex(0).getZ());
+    maxCoords.setX(mesh.GetVertex(0).getX());
+    maxCoords.setY(mesh.GetVertex(0).getY());
+    maxCoords.setZ(mesh.GetVertex(0).getZ());
 
-    for(int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(int ii=0; ii<mesh.GetNumVertices(); ii++){
 
-        Vertex3D vv=mesh.getVertex(ii);
+        Vertex3D vv=mesh.GetVertex(ii);
 
         //Update if necessary
         if(vv.getX()<minCoords.getX())
@@ -735,7 +735,7 @@ void Segmenter::getBBDiagonal(){
 bool Segmenter::CheckClusterIndex(){
     bool ret=true;
 
-    for(int a=0;a<mesh.getTopSimplexesNum();a++){
+    for(int a=0;a<mesh.GetNumberOfTopSimplexes();a++){
         if(clusterIndex[a] < 0){
             ret=false;
         }
@@ -786,7 +786,7 @@ bool Segmenter::updateCenters(){
         double regionArea=0.0;
         for(unsigned int ff=0;ff<facesCentroids.size();ff++){
             if(clusterIndex[ff]==ii)
-                regionArea += mesh.TArea(ff);
+                regionArea += mesh.TriangleArea(ff);
         }
         double xc=0.0;
         double yc=0.0;
@@ -796,7 +796,7 @@ bool Segmenter::updateCenters(){
         for(unsigned int ff=0;ff<facesCentroids.size();ff++){
             if(clusterIndex[ff]==ii){
                 Vertex3D current=facesCentroids.at(ff);
-                double ta=mesh.TArea(ff);
+                double ta=mesh.TriangleArea(ff);
                 xc += ta*current.getX();
                 yc += ta*current.getY();
                 zc += ta*current.getZ();

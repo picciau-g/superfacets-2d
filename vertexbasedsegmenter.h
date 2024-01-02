@@ -41,7 +41,7 @@ public:
     string filename;
     string fieldfilename;
 
-    Mesh<Vertex3D, Triangle> mesh;
+    Mesh<Triangle> mesh;
     vector<Normals> norms;
     vector<float> functionValue;
 
@@ -137,15 +137,15 @@ private:
     priority_queue<pointDist, vector<pointDist>, compare> initializeQueue(int);
 
     inline void setAreas(){
-        for(int a=0;a<mesh.getTopSimplexesNum();a++)
-            faceAreas[a]=mesh.TArea(a);
+        for(int a=0;a<mesh.GetNumberOfTopSimplexes();a++)
+            faceAreas[a]=mesh.TriangleArea(a);
     }
     Vertex3D halfPoint(Vertex3D, Vertex3D);
 
     inline bool CheckClusterIndex(){
         bool ret=true;
 
-        for(int a=0;a<mesh.getNumVertex();a++){
+        for(int a=0;a<mesh.GetNumVertices();a++){
             if(clusterIndex[a] < 0){
                 ret=false;
             }
@@ -156,7 +156,7 @@ private:
     inline vertexind indexOfMax(double *array){
         double actual = -10000; //All the values should be > 0 (they are distances)
         int toRet=-1;
-        for(int aa=0;aa<mesh.getNumVertex();aa++){
+        for(int aa=0;aa<mesh.GetNumVertices();aa++){
             if(array[aa] > actual){
                 toRet = aa;
                 actual = array[aa];

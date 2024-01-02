@@ -7,7 +7,7 @@ VertexBasedSegmenter::VertexBasedSegmenter()
 
 void VertexBasedSegmenter::openMeshFile(string mname){
 
-    mesh = Mesh<Vertex3D, Triangle>();
+    mesh = Mesh<Triangle>();
     QString qmn = QString::fromStdString(mname);
     QStringList qsl = qmn.split(".");
 
@@ -20,9 +20,9 @@ void VertexBasedSegmenter::openMeshFile(string mname){
         cout<<"Not a valid file format (it must be .tri or .off)"<<endl;
         exit(0);
     }
-    mesh.build();
+    mesh.Build();
 
-    cout<<"Build mesh with "<<mesh.getNumVertex()<<" vertices and "<<mesh.getTopSimplexesNum()<<" triangles "<<endl;
+    cout<<"Build mesh with "<<mesh.GetNumVertices()<<" vertices and "<<mesh.GetNumberOfTopSimplexes()<<" triangles "<<endl;
 }
 
 void VertexBasedSegmenter::loadMesh(){
@@ -31,13 +31,13 @@ void VertexBasedSegmenter::loadMesh(){
     cout<<"Loading "<<this->filename<<endl;
     this->centerMesh = centerCoordinate();
 
-    faceAreas = new float[mesh.getTopSimplexesNum()];
-    clusterIndex = new int[mesh.getNumVertex()];
+    faceAreas = new float[mesh.GetNumberOfTopSimplexes()];
+    clusterIndex = new int[mesh.GetNumVertices()];
     cout<<"found center"<<endl;
 
-    for(unsigned int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
-        Triangle T = mesh.getTopSimplex(ii);
-        Normals n = Normals(mesh.getVertex(T.TV(0)), mesh.getVertex(T.TV(1)), mesh.getVertex(T.TV(2)));
+    for(unsigned int ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
+        Triangle T = mesh.GetTopSimplex(ii);
+        Normals n = Normals(mesh.GetVertex(T.TV(0)), mesh.GetVertex(T.TV(1)), mesh.GetVertex(T.TV(2)));
         norms.push_back(n);
     }
     cout<<"set normals"<<endl;
@@ -45,13 +45,13 @@ void VertexBasedSegmenter::loadMesh(){
     getBBDiagonal();
     cout<<"Diag "<<this->BBDiagonal<<endl;
 
-    double auxRad = sqrt(mesh.MArea()/(NCluster*M_PI));
+    double auxRad = sqrt(mesh.MeshArea()/(NCluster*M_PI));
     this->maxD = auxRad/BBDiagonal;
 
     openCurvatureFile(fieldfilename);
     cout<<"Loaded function"<<endl;
 
-    for(int ii=0; ii<mesh.getNumVertex(); ii++)
+    for(int ii=0; ii<mesh.GetNumVertices(); ii++)
         clusterIndex[ii]=-1;
 
     cout<<"Before vertices"<<endl;
@@ -65,7 +65,7 @@ void VertexBasedSegmenter::loadMesh(){
     vertexDistances.erase(vertexDistances.begin(), vertexDistances.end());
     functionVDistances.erase(functionVDistances.begin(), functionVDistances.end());
 
-    cout<<"All built, "<<mesh.getNumVertex()<<" vertices and "<<mesh.getTopSimplexesNum()<<" triangles"<<endl;
+    cout<<"All built, "<<mesh.GetNumVertices()<<" vertices and "<<mesh.GetNumberOfTopSimplexes()<<" triangles"<<endl;
 
     //startSeg();
 }
@@ -75,28 +75,28 @@ Vertex3D VertexBasedSegmenter::centerCoordinate(){
     Vertex3D res;
     float sumX=0.0; float sumY=0.0; float sumZ=0.0;
 
-    for(int ii=0;ii<mesh.getNumVertex();ii++){
+    for(int ii=0;ii<mesh.GetNumVertices();ii++){
 
-        sumX += mesh.getVertex(ii).getX();
-        sumY += mesh.getVertex(ii).getY();
-        sumZ += mesh.getVertex(ii).getZ();
+        sumX += mesh.GetVertex(ii).getX();
+        sumY += mesh.GetVertex(ii).getY();
+        sumZ += mesh.GetVertex(ii).getZ();
     }
-    res.setX(sumX/mesh.getNumVertex());
-    res.setY(sumY/mesh.getNumVertex());
-    res.setZ(sumZ/mesh.getNumVertex());
+    res.setX(sumX/mesh.GetNumVertices());
+    res.setY(sumY/mesh.GetNumVertices());
+    res.setZ(sumZ/mesh.GetNumVertices());
 
     return res;
 }
 
 int VertexBasedSegmenter::nearestVertex(){
 
-    float distance = centerMesh.distance(mesh.getVertex(0));
+    float distance = centerMesh.distance(mesh.GetVertex(0));
     int nearestSoFar = 0;
 
-    for(int v=0; v<mesh.getNumVertex(); v++){
+    for(int v=0; v<mesh.GetNumVertices(); v++){
 
-        if(distance>centerMesh.distance(mesh.getVertex(v))){
-            distance = centerMesh.distance(mesh.getVertex(v));
+        if(distance>centerMesh.distance(mesh.GetVertex(v))){
+            distance = centerMesh.distance(mesh.GetVertex(v));
             nearestSoFar = v;
         }
     }
@@ -119,19 +119,19 @@ void VertexBasedSegmenter::placeSeeds(int index){
     clusterIndex[index] = 0;
     int count = 1;
 
-    double *distFromSeeds = new double[mesh.getNumVertex()];
+    double *distFromSeeds = new double[mesh.GetNumVertices()];
 
     while (regionCentroids.size() < NCluster) {
 
-        for(int iterVerts = 0; iterVerts<mesh.getNumVertex(); iterVerts++){
+        for(int iterVerts = 0; iterVerts<mesh.GetNumVertices(); iterVerts++){
             distFromSeeds[iterVerts] = 0.0;
 
             if(!regionCentroids.count(iterVerts)){
 
-                distFromSeeds[iterVerts] = mesh.getVertex(iterVerts).distance(mesh.getVertex(regionCentroids[0]));
+                distFromSeeds[iterVerts] = mesh.GetVertex(iterVerts).distance(mesh.GetVertex(regionCentroids[0]));
                 for(int k=1; k<regionCentroids.size(); k++){
-                    if(distFromSeeds[iterVerts] > mesh.getVertex(iterVerts).distance(mesh.getVertex(regionCentroids[k])))
-                        distFromSeeds[iterVerts] = mesh.getVertex(iterVerts).distance(mesh.getVertex(regionCentroids[k]));
+                    if(distFromSeeds[iterVerts] > mesh.GetVertex(iterVerts).distance(mesh.GetVertex(regionCentroids[k])))
+                        distFromSeeds[iterVerts] = mesh.GetVertex(iterVerts).distance(mesh.GetVertex(regionCentroids[k]));
                 }
 
             }
@@ -165,7 +165,7 @@ void VertexBasedSegmenter::Segmentation(){
 void VertexBasedSegmenter::expansionStep(){
 
 
-    for(unsigned int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumVertices(); ii++){
         outputDijkstra[ii]=FLT_MAX;
         clusterIndex[ii]=-1;
     }
@@ -180,15 +180,15 @@ void VertexBasedSegmenter::expansionStep(){
     }
 
     while (!CheckClusterIndex()) {
-        int violator;
+        int violator = 0;
         cout<<"Violator"<<endl;
-        for(int vv=0; vv<mesh.getNumVertex(); vv++){
+        for(int vv=0; vv<mesh.GetNumVertices(); vv++){
             if(clusterIndex[vv]<0){
                 violator=vv;
                 break;
             }
         }
-        if(violator<mesh.getNumVertex())
+        if(violator<mesh.GetNumVertices())
             expandSeed(violator, NCluster++);
     }
 }
@@ -203,7 +203,7 @@ void VertexBasedSegmenter::expandSeed(int indexV, int newInd){
     seed.distanceP = 0.0;
     Q.push(seed);
 
-    Vertex3D rc = mesh.getVertex(indexV);
+    Vertex3D rc = mesh.GetVertex(indexV);
     clusterIndex[indexV] = newInd;
 
     while(!Q.empty()){
@@ -211,14 +211,14 @@ void VertexBasedSegmenter::expandSeed(int indexV, int newInd){
         pointDist actual = Q.top();
         Q.pop();
 
-        if(actual.indexP > mesh.getNumVertex()){
+        if(actual.indexP > mesh.GetNumVertices()){
             cout<<"Index exceed"<<endl;
             continue;
         }
 
-        if(rc.distance(mesh.getVertex(actual.indexP))/BBDiagonal <= 2*maxD){
+        if(rc.distance(mesh.GetVertex(actual.indexP))/BBDiagonal <= 2*maxD){
             int neigh;
-            Vertex3D V = mesh.getVertex(actual.indexP);
+            Vertex3D V = mesh.GetVertex(actual.indexP);
 
             vector<int> VV = mesh.VV(actual.indexP);
             for(unsigned int ii=0; ii<VV.size(); ii++){
@@ -258,10 +258,10 @@ bool VertexBasedSegmenter::updateCenters(){
         double xc=0.0, yc=0.0, zc=0.0;
         int cardinality=0;
         //cout<<"Iter "<<ii<<endl;
-        for(unsigned int jj=0; jj<mesh.getNumVertex(); jj++){
+        for(unsigned int jj=0; jj<mesh.GetNumVertices(); jj++){
 
             if(clusterIndex[jj]==ii){
-                Vertex3D V = mesh.getVertex(jj);
+                Vertex3D V = mesh.GetVertex(jj);
                 xc += V.getX();
                 yc += V.getY();
                 zc += V.getZ();
@@ -278,14 +278,14 @@ bool VertexBasedSegmenter::updateCenters(){
 
         Vertex3D nc(xc, yc, zc);
 
-        double actualD = nc.distance(mesh.getVertex(regionCentroids[ii]));
+        double actualD = nc.distance(mesh.GetVertex(regionCentroids[ii]));
 
-        for(unsigned int jj=0; jj<mesh.getNumVertex(); jj++){
+        for(unsigned int jj=0; jj<mesh.GetNumVertices(); jj++){
 
             if(clusterIndex[jj]==ii){
 
-                if(nc.distance(mesh.getVertex(jj)) < actualD && jj != regionCentroids[ii]){
-                    actualD = nc.distance(mesh.getVertex(jj));
+                if(nc.distance(mesh.GetVertex(jj)) < actualD && jj != regionCentroids[ii]){
+                    actualD = nc.distance(mesh.GetVertex(jj));
                     any_moves=true;
                     regionCentroids[ii]=jj;
                     differences[ii]++;
@@ -306,10 +306,10 @@ std::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistances(){
 
     std::unordered_map<edgekey, float> VD;
 
-    for(unsigned int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumVertices(); ii++){
 
         //cout<<"Loop "<<ii<<endl;
-        Vertex3D V = mesh.getVertex(ii);
+        Vertex3D V = mesh.GetVertex(ii);
         //cout<<"V "<<V.getX()<<" "<<V.getY()<<" "<<V.getZ()<<endl;
         vector<int> VNeighbors = mesh.VV(ii);
         //cout<<"Loop "<<ii<<" size "<<VNeighbors.size()<<endl;
@@ -325,13 +325,13 @@ std::unordered_map<edgekey, float> VertexBasedSegmenter::buildVertexDistances(){
         for(unsigned int jj=0; jj<VNeighbors.size(); jj++){
 
             int n = VNeighbors.at(jj);
-            if(n<0 || n>mesh.getNumVertex())
+            if(n<0 || n>mesh.GetNumVertices())
                 continue;
             edgekey ek = getVertexKey(ii, n);
 
             if(!VD.count(ek) && n>=0){
 
-                float dist = V.distance(mesh.getVertex(n));
+                float dist = V.distance(mesh.GetVertex(n));
                 //assert(dist>0);
                 VD[ek] = dist;
             }
@@ -346,9 +346,9 @@ std::unordered_map<edgekey, float> VertexBasedSegmenter::buildFunctionVDistances
 
     std::unordered_map<edgekey, float> fdDistances;
 
-    for(int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(int ii=0; ii<mesh.GetNumVertices(); ii++){
 
-        Vertex3D V = mesh.getVertex(ii);
+        Vertex3D V = mesh.GetVertex(ii);
         vector<int> VNeighbors = mesh.VV(ii);
 
         for(unsigned int jj=0; jj<VNeighbors.size(); jj++){
@@ -367,7 +367,7 @@ std::unordered_map<edgekey, float> VertexBasedSegmenter::buildFunctionVDistances
 
 void VertexBasedSegmenter::buildGlobalDistances(){
 
-    for(unsigned int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumVertices(); ii++){
 
         vector<int> VNeighbors = mesh.VV(ii);
 
@@ -386,17 +386,17 @@ void VertexBasedSegmenter::buildGlobalDistances(){
 
 void VertexBasedSegmenter::getBBDiagonal(){
 
-    minCoords.setX(mesh.getVertex(0).getX());
-    minCoords.setY(mesh.getVertex(0).getY());
-    minCoords.setZ(mesh.getVertex(0).getZ());
+    minCoords.setX(mesh.GetVertex(0).getX());
+    minCoords.setY(mesh.GetVertex(0).getY());
+    minCoords.setZ(mesh.GetVertex(0).getZ());
 
-    maxCoords.setX(mesh.getVertex(0).getX());
-    maxCoords.setY(mesh.getVertex(0).getY());
-    maxCoords.setZ(mesh.getVertex(0).getZ());
+    maxCoords.setX(mesh.GetVertex(0).getX());
+    maxCoords.setY(mesh.GetVertex(0).getY());
+    maxCoords.setZ(mesh.GetVertex(0).getZ());
 
-    for(unsigned int ii=0; ii<mesh.getNumVertex(); ii++){
+    for(unsigned int ii=0; ii<mesh.GetNumVertices(); ii++){
 
-        Vertex3D vv = mesh.getVertex(ii);
+        Vertex3D vv = mesh.GetVertex(ii);
         if(vv.getX()<minCoords.getX())
             minCoords.setX(vv.getX());
         if(vv.getY()<minCoords.getY())
@@ -422,7 +422,7 @@ int VertexBasedSegmenter::writeSegmOnFile(string filename){
 
     if(ofs.is_open()){
 
-        for(int a=0; a<mesh.getNumVertex(); a++)
+        for(int a=0; a<mesh.GetNumVertices(); a++)
             ofs << clusterIndex[a] <<endl;
 
         ofs.close();

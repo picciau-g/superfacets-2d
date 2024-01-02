@@ -120,7 +120,7 @@ public:
         numClusters=0;
 
         //Find the number of clusters checking the highest cluster index value. Does like this because this number could change over the iterations
-        for(unsigned int a=0;a<mesh.getTopSimplexesNum();a++){
+        for(unsigned int a=0;a<mesh.GetNumberOfTopSimplexes();a++){
 
             if(numClusters < clusterIndex[a])
                 numClusters=clusterIndex[a];
@@ -149,7 +149,7 @@ private:
     //segmentation name
     string segFile;
 
-    Mesh<Vertex3D, Triangle> mesh;
+    Mesh<Triangle> mesh;
 
     //Stores the indices of the segments
     int* clusterIndex;

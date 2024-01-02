@@ -30,6 +30,16 @@ int Edge::EV(int pos)
     return (pos == 0) ? m_vertIndices.x : m_vertIndices.y;
 }
 
+/**
+ * @brief Edge::EV implementation of the edge-vertex relation
+ * @param pos (values 0 or 1) which one of the two vertices we want
+ * @return index of the corresponding vertex
+ */
+int Edge::EV(int pos) const
+{
+    return (pos == 0) ? m_vertIndices.x : m_vertIndices.y;
+}
+
 
 bool Edge::operator==(const Edge &p) const
 {

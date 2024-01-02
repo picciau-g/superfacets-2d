@@ -65,7 +65,7 @@ class Segmenter
 public:
     Segmenter();
     string filename;
-    Mesh<Vertex3D, Triangle> mesh;
+    Mesh<Triangle> mesh;
 
     vector<Vertex3D> facesCentroids;
     vector<Normals> norms;
@@ -273,7 +273,7 @@ private:
 
     inline int retFirst(int *array){
         //int toret = -1;
-        for(int ii=0;ii<mesh.getTopSimplexesNum();ii++){
+        for(int ii=0;ii<mesh.GetNumberOfTopSimplexes();ii++){
             if(array[ii]==0)
                 return ii;
         }
@@ -320,8 +320,8 @@ private:
          * Builds the array containing the area of the faces
          */
     inline void setAreas(){
-        for(int a=0;a<mesh.getTopSimplexesNum();a++)
-            faceAreas[a]=mesh.TArea(a);
+        for(int a=0;a<mesh.GetNumberOfTopSimplexes();a++)
+            faceAreas[a]=mesh.TriangleArea(a);
     }
 
     /**
@@ -332,7 +332,7 @@ private:
     inline faceind indexOfMax(double *array){
         double actual = -10000; //All the values should be > 0 (they are distances)
         int toRet=-1;
-        for(int aa=0;aa<mesh.getTopSimplexesNum();aa++){
+        for(int aa=0;aa<mesh.GetNumberOfTopSimplexes();aa++){
             if(array[aa] > actual){
                 toRet = aa;
                 actual = array[aa];

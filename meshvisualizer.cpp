@@ -42,17 +42,17 @@ MeshVisualizer::MeshVisualizer(string fname, string sname){
 void MeshVisualizer::InitStructures(){
 
     /// Initialize the normals
-    normals.reserve(mesh.getTopSimplexesNum()*sizeof(Normals));
+    normals.reserve(mesh.GetNumberOfTopSimplexes()*sizeof(Normals));
 
-    for(int ii=0; ii<mesh.getTopSimplexesNum(); ii++){
+    for(int ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
 
-        Triangle T = mesh.getTopSimplex(ii);
-        Normals n = Normals(mesh.getVertex(T.TV(0)), mesh.getVertex(T.TV(1)),mesh.getVertex(T.TV(2)));
+        Triangle T = mesh.GetTopSimplex(ii);
+        Normals n = Normals(mesh.GetVertex(T.TV(0)), mesh.GetVertex(T.TV(1)),mesh.GetVertex(T.TV(2)));
         normals.push_back(n);
     }
 
     /// Initialize the array with the indices
-    clusterIndex = new int[mesh.getTopSimplexesNum()];
+    clusterIndex = new int[mesh.GetNumberOfTopSimplexes()];
 
     /// Reads the segmentations
     readSegmFromFile(segFile);
@@ -70,14 +70,14 @@ void MeshVisualizer::InitStructures(){
  */
 void MeshVisualizer::findMExtension(string s){
 
-    mesh=Mesh<Vertex3D, Triangle>();
+    mesh=Mesh<Triangle>();
     QString qmeshName=QString::fromStdString(s);
     QStringList ql=qmeshName.split(".");
     if(ql.back().compare("tri")==0)
         Reader::readMeshFile(mesh, s);
     else if(ql.back().compare("off")==0)
         Reader::readOFFMesh(mesh,s);
-    mesh.build();
+    mesh.Build();
 }
 
 
@@ -126,17 +126,17 @@ void MeshVisualizer::saveImage(){
 void MeshVisualizer::getBBDiagonal(){
 
     // something strange happened if we used infinity
-    minCoord.setX(mesh.getVertex(0).getX());
-    minCoord.setY(mesh.getVertex(0).getY());
-    minCoord.setZ(mesh.getVertex(0).getZ());
+    minCoord.setX(mesh.GetVertex(0).getX());
+    minCoord.setY(mesh.GetVertex(0).getY());
+    minCoord.setZ(mesh.GetVertex(0).getZ());
 
-    maxCoord.setX(mesh.getVertex(0).getX());
-    maxCoord.setY(mesh.getVertex(0).getY());
-    maxCoord.setZ(mesh.getVertex(0).getZ());
+    maxCoord.setX(mesh.GetVertex(0).getX());
+    maxCoord.setY(mesh.GetVertex(0).getY());
+    maxCoord.setZ(mesh.GetVertex(0).getZ());
 
-    for(int ii=1;ii<mesh.getNumVertex();ii++){
+    for(int ii=1;ii<mesh.GetNumVertices();ii++){
 
-        Vertex3D vv = mesh.getVertex(ii);
+        Vertex3D vv = mesh.GetVertex(ii);
 
         //Minimum
         if(vv.getX() < minCoord.getX())
@@ -167,17 +167,17 @@ void MeshVisualizer::getCenterMesh(){
 
     float sumX=0.0, sumY=0.0, sumZ=0.0;
 
-    for(int ii=0;ii<mesh.getNumVertex();ii++){
+    for(int ii=0;ii<mesh.GetNumVertices();ii++){
 
         // sum all vertices coordinates
-        sumX += mesh.getVertex(ii).getX();
-        sumY += mesh.getVertex(ii).getY();
-        sumZ += mesh.getVertex(ii).getZ();
+        sumX += mesh.GetVertex(ii).getX();
+        sumY += mesh.GetVertex(ii).getY();
+        sumZ += mesh.GetVertex(ii).getZ();
 
         // divide by number of vertices
-        baryCenter.setX(sumX/mesh.getNumVertex());
-        baryCenter.setY(sumY/mesh.getNumVertex());
-        baryCenter.setZ(sumZ/mesh.getNumVertex());
+        baryCenter.setX(sumX/mesh.GetNumVertices());
+        baryCenter.setY(sumY/mesh.GetNumVertices());
+        baryCenter.setZ(sumZ/mesh.GetNumVertices());
     }
 }
 
@@ -210,7 +210,7 @@ void MeshVisualizer::draw_triangle(Triangle T, int f){
     }
     Vertex3D verts[3];
     for(int i=0;i<3;i++){
-        verts[i]=mesh.getVertex(indverts[i]);
+        verts[i]=mesh.GetVertex(indverts[i]);
     }
 
     switch(typeV){
@@ -259,10 +259,10 @@ void MeshVisualizer::draw_mesh(){
     glRotatef(objRY, 0.0,1.0,0.0);
     glRotatef(objRX, 1.0,0.0,0.0);
 
-    for(faceind ii=0; ii<mesh.getTopSimplexesNum(); ii++){
+    for(faceind ii=0; ii<mesh.GetNumberOfTopSimplexes(); ii++){
 
         //Display the ii-th triangle
-        Triangle T = mesh.getTopSimplex(ii);
+        Triangle T = mesh.GetTopSimplex(ii);
         setColor(ii);
         draw_triangle(T, ii);
 
@@ -275,8 +275,8 @@ void MeshVisualizer::draw_mesh(){
                 if(clusterIndex[ii] != clusterIndex[neigh]){
 
                     Edge* ee = T.TE(jj);
-                    Vertex3D v0 = mesh.getVertex(ee->EV(0));
-                    Vertex3D v1 = mesh.getVertex(ee->EV(1));
+                    Vertex3D v0 = mesh.GetVertex(ee->EV(0));
+                    Vertex3D v1 = mesh.GetVertex(ee->EV(1));
 
                     glLineWidth(2.0);
                     glColor3f(0.0,0.0,0.0);
@@ -368,7 +368,7 @@ void MeshVisualizer::mouseMoveEvent(QMouseEvent *e){
         objRX += 180*dy;
         objRZ += 180*dx;
     }
-    update();
+    //update();
     lPos = e->pos();
 }
 

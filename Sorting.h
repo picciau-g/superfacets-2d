@@ -19,4 +19,17 @@ static int cmp_aux( const void *p, const void *q )
   return 0;
 }
 
+static bool CompareAux(aux p, aux q)
+{
+    if(p.v1 < q.v1)
+        return true;
+    if(p.v1 == q.v1 && p.v2 < q.v2)
+        return true;
+    if(p.v1 == q.v1 && p.v2 == q.v2 && p.t < q.t)
+        return true;
+
+    return false;
+
+}
+
 #endif // SORTING_H
