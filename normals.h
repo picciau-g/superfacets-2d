@@ -13,9 +13,7 @@
 #ifndef NORMALS_H
 #define NORMALS_H
 
-#include "Mesh.h"
 #include "Vertex3D.h"
-#include "Triangle.h"
 
 /**
  *
@@ -31,7 +29,7 @@ public:
     Normals(Vertex3D, Vertex3D, Vertex3D);
 
     /// Scalar product
-    float dotProd(Normals N);
+    float DotProd(Normals N);
 
     /// Vector Normalization
     void Normalize();
@@ -40,55 +38,64 @@ public:
      * @brief getNx
      * @return x component of the normal vector
      */
-    inline float getNx(){
-        return this->nx;
+    inline float getNx()
+    {
+        return m_Normals.x;
     }
 
     /**
      * @brief getNy
      * @return y component of the normal vector
      */
-    inline float getNy(){
-        return this->ny;
+    inline float getNy()
+    {
+        return m_Normals.y;
     }
 
     /**
      * @brief getNz
      * @return z component of the normal vector
      */
-    inline float getNz(){
-        return this->nz;
+    inline float getNz()
+    {
+        return m_Normals.z;
     }
 
     /**
      * @brief setNX set x component of the normal vector
      * @param a value of the x component
      */
-    inline void setNX(float a){
-        this->nx=a;
+    inline void setNX(float pA)
+    {
+        m_Normals.x = pA;
     }
 
     /**
      * @brief setNY set y component of the normal vector
      * @param a value of the y component
      */
-    inline void setNY(float a){
-        this->ny=a;
+    inline void setNY(float pA)
+    {
+        m_Normals.y = pA;
     }
 
     /**
      * @brief setNZ set z component of the normal vector
      * @param a value of the z component
      */
-    inline void setNZ(float a){
-        this->nz=a;
+    inline void setNZ(float pA)
+    {
+        m_Normals.z = pA;
+    }
+
+    inline glm::vec3 GetNormal() const
+    {
+        return m_Normals;
     }
 
 private:
     /// Values for the normal along the 3 axes
-    float nx;
-    float ny;
-    float nz;
+    glm::vec3 m_Normals;
 };
 
 #endif // NORMALS_H

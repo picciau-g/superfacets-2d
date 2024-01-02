@@ -372,14 +372,14 @@ std::unordered_map<edgekey, float> Segmenter::buildAngleDistances(){
                 nn.setNY(diffCenters[1]);
                 nn.setNZ(diffCenters[2]);
 
-                if(N.dotProd(nn) > 0){ //concave
+                if(N.DotProd(nn) > 0){ //concave
                     eta=1.0;
                 }
                 else{ //convex
                     eta=etaconvex;
                 }
 
-                float dot=N.dotProd(norms.at(f2));
+                float dot=N.DotProd(norms.at(f2));
                 //Clamp dot product to be in [-1, 1]
                 if(dot > 1.0)
                     dot=1.0;

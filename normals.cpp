@@ -23,7 +23,8 @@ Normals::Normals()
  * @param b second point
  * @param c third point
  */
-Normals::Normals(Vertex3D a, Vertex3D b, Vertex3D c){
+Normals::Normals(Vertex3D a, Vertex3D b, Vertex3D c)
+{
 
     float vec1[3], vec2[3];
 
@@ -35,9 +36,7 @@ Normals::Normals(Vertex3D a, Vertex3D b, Vertex3D c){
     vec2[1]=c.getY()-a.getY();
     vec2[2]=c.getZ()-a.getZ();
 
-    this->nx=(vec1[1]*vec2[2])-(vec1[2]*vec2[1]);
-    this->ny=(vec1[2]*vec2[0])-(vec1[0]*vec2[2]);
-    this->nz=(vec1[0]*vec2[1])-(vec1[1]*vec2[0]);
+    m_Normals = glm::vec3((vec1[1]*vec2[2])-(vec1[2]*vec2[1]), (vec1[2]*vec2[0])-(vec1[0]*vec2[2]), (vec1[0]*vec2[1])-(vec1[1]*vec2[0]));
 
     //To have them in range [0,1]
     Normalize();
@@ -46,12 +45,9 @@ Normals::Normals(Vertex3D a, Vertex3D b, Vertex3D c){
 /**
  * @brief Normals::Normalize to have normal components in the interval [0,1]
  */
-void Normals::Normalize(){
-    float normFact=sqrt(nx*nx + ny*ny + nz*nz);
-
-    nx /= normFact;
-    ny /= normFact;
-    nz /= normFact;
+void Normals::Normalize()
+{
+    glm::normalize(m_Normals);
 }
 
 /**
@@ -59,7 +55,8 @@ void Normals::Normalize(){
  * @param N normal vector
  * @return
  */
-float Normals::dotProd(Normals N){
+float Normals::DotProd(Normals N)
+{
 
-    return this->nx*N.nx + this->ny*N.ny + this->nz*N.nz;
+    return glm::dot(m_Normals, N.GetNormal());
 }
