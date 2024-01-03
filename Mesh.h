@@ -60,6 +60,7 @@ public:
      * \return an integer, representing the number of top simplexes
      */
     inline int GetNumberOfTopSimplexes() { return m_TopSimplexes.size(); }
+    inline int GetNumberOfTopSimplexes() const { return m_TopSimplexes.size(); }
     ///A public method that adds a top simplex to the top simplexes list
     /*!
      * \param t a T& argument, representing the top simplex to add
@@ -103,6 +104,8 @@ public:
     void Barycenter();
 
     inline glm::vec3 GetBarycenter() const { return m_Barycenter; }
+    float GetGoundingBoxDiagonal();
+    Vertex3D HalfPoint(unsigned int pIndexV1, unsigned int pIndexV2);
 
     int VIndexInT(int pV, int pT);
     int NextTAroundV(int pT, int pV, versus pVerso);
@@ -1021,6 +1024,52 @@ template<class T> double Mesh<T>::VoronoiBarycentricArea(int v, int t)
      double e2 = GetVertex(v2).norma(GetVertex(v));
      return (cot_c*e1*e1 + cot_b*e2*e2) / 8.0;
   }
+}
+
+
+template<class T>
+Vertex3D Mesh<T>::HalfPoint(unsigned int pIndexV1, unsigned int pIndexV2)
+{
+    glm::vec3 coords1 = GetVertex(pIndexV1).GetCoordinates();
+    glm::vec3 coords2 = GetVertex(pIndexV2).GetCoordinates();
+
+    glm::vec3 hp = (coords1 + coords2) / 2.0f;
+
+    return Vertex3D(hp);
+}
+
+
+template<class T>
+float Mesh<T>::GetGoundingBoxDiagonal()
+{
+    //Minimum
+    glm::vec3 minCoordinate = GetVertex(0).GetCoordinates();
+    //Maximum
+    glm::vec3 maxCoordinate = GetVertex(0).GetCoordinates();
+
+    for(int ii=0; ii< GetNumVertices(); ii++)
+    {
+
+        Vertex3D vv = GetVertex(ii);
+
+        //Update if necessary
+        if(vv.getX() < minCoordinate.x)
+            minCoordinate.x = vv.getX();
+        if(vv.getY() < minCoordinate.y)
+            minCoordinate.y = vv.getY();
+        if(vv.getZ() < minCoordinate.z)
+            minCoordinate.z = vv.getZ();
+
+        if(vv.getX() > maxCoordinate.x)
+            maxCoordinate.x = vv.getX();
+        if(vv.getY() > maxCoordinate.y)
+            maxCoordinate.y = vv.getY();
+        if(vv.getZ() > maxCoordinate.z)
+            maxCoordinate.z = vv.getZ();
+    }
+
+    //diagonal length
+    return glm::distance(minCoordinate, maxCoordinate);
 }
 
 

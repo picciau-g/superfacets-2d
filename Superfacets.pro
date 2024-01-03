@@ -29,7 +29,6 @@ macx: {
 
 QMAKE_CXXFLAGS_RELEASE += -fpermissive
 QMAKE_CXXFLAGS_DEBUG += -fpermissive
-#QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3
 
@@ -46,8 +45,7 @@ SOURCES += main.cpp \
     meshvisualizer.cpp \
     Edge.cpp \
     dialogs.cpp \
-    colormapper.cpp \
-    vertexbasedsegmenter.cpp
+    colormapper.cpp
 
 HEADERS += \
     Vertex3D.h \
@@ -62,7 +60,6 @@ HEADERS += \
     Edge.h \
     dialogs.h \
     colormapper.h \
-    vertexbasedsegmenter.h \
     common.h
 
 

@@ -93,6 +93,11 @@ public:
         return m_Normals;
     }
 
+    inline void SetNormal(const glm::vec3& pNorm)
+    {
+        m_Normals = pNorm;
+    }
+
 private:
     /// Values for the normal along the 3 axes
     glm::vec3 m_Normals;

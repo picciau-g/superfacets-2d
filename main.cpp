@@ -1,10 +1,8 @@
-#include "segmenter.h"
 #include "meshvisualizer.h"
-#include "vertexbasedsegmenter.h"
 #include <stdio.h>
 #include <QApplication>
 
-using namespace std;
+#define MAX_ITERATIONS 10
 
 /**
  * @author Giulia Picciau
@@ -15,7 +13,8 @@ using namespace std;
 /**
  * @brief print_help prints instructions on screen
  */
-void print_help(){
+void print_help()
+{
     printf("\n NAME: \n");
     printf("\t Superfacets Segmentation \n\n");
     printf("\t Author: Giulia Picciau");
@@ -68,7 +67,8 @@ void print_help(){
  * @param MN name of the mesh file
  * @param SN name of the segmentation file
  */
-void callVis(string MN, string SN){
+void callVis(string MN, string SN)
+{
 
     MeshVisualizer *MV = new MeshVisualizer(MN, SN);
     MV->resize(800, 600);
@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
     int nIters = 50;
     bool triBased = true;
 
-    if(argc==1){
+    if(argc==1)
+    {
         print_help();
         exit(0);
     }
@@ -102,169 +103,187 @@ int main(int argc, char *argv[])
     bool justvisualize=false;
     bool floodI = true;
 
-    for(int n_opt=1;n_opt<argc;n_opt+=2){
+    for(int n_opt=1;n_opt<argc;n_opt+=2)
+    {
 
         char* option=argv[n_opt];
 
-        if(!strcmp(option, "-m")){ //Mesh name
+        if(!strcmp(option, "-m"))
+        { //Mesh name
             QString input = argv[n_opt+1];
             meshfilename = input.toStdString();
         }
 
-        else if(!strcmp(option, "-r")){  //Radius (implies radius-based init)
+        else if(!strcmp(option, "-r"))
+        {  //Radius (implies radius-based init)
             QString input = argv[n_opt+1];
             radius = input.toDouble();
             number = -1;
         }
 
-        else if(!strcmp(option, "-nseg")){  //Number of regions
+        else if(!strcmp(option, "-nseg"))
+        {  //Number of regions
             QString input = argv[n_opt+1];
             number = input.toInt();
             radius = -1.0;
         }
 
-        else if(!strcmp(option, "-a")){ //Alpha
+        else if(!strcmp(option, "-a"))
+        { //Alpha
             QString input = argv[n_opt+1];
             alpha = input.toDouble();
         }
 
-        else if(!strcmp(option, "-eta")){ //Value of eta if the angle is convex
+        else if(!strcmp(option, "-eta"))
+        { //Value of eta if the angle is convex
             QString input = argv[n_opt+1];
             etaConvex = input.toDouble();
         }
 
-        else if(!strcmp(option, "-h")){  //put the header in the file
+        else if(!strcmp(option, "-h"))
+        {  //put the header in the file
             putHeader = true;
             n_opt--;
         }
 
-        else if(!strcmp(option, "-vis")){  //Launch the visualizer when segmentation is done
+        else if(!strcmp(option, "-vis"))
+        {  //Launch the visualizer when segmentation is done
             visualize = true;
             n_opt--;
         }
 
-        else if(!strcmp(option, "-out")){  //The output file in which we write the segmentation
+        else if(!strcmp(option, "-out"))
+        {  //The output file in which we write the segmentation
             QString input = argv[n_opt+1];
             segFile = input.toStdString();
         }
 
-        else if(!strcmp(option, "-flood")){  //Radius-based, decide the strategy
+        else if(!strcmp(option, "-flood"))
+        {  //Radius-based, decide the strategy
             QString input = argv[n_opt+1];
             floodI = (bool)input.toInt();
         }
 
-        else if(!strcmp(option, "-mult")){
+        else if(!strcmp(option, "-mult"))
+        {
             QString input = argv[n_opt+1];
             timesR = input.toInt();
         }
-        else if(!strcmp(option, "-nIter")){
+        else if(!strcmp(option, "-nIter"))
+        {
             QString input = argv[n_opt+1];
             nIters = input.toInt();
         }
 
-        else if(!strcmp(option, "-ov")){  //Calls only the visualizer
+        else if(!strcmp(option, "-ov"))
+        {  //Calls only the visualizer
             justvisualize = true;
             QString input = argv[n_opt+1];
             segFile = input.toStdString();
         }
 
-        else if(!strcmp(option, "-debug")){
+        else if(!strcmp(option, "-debug"))
+        {
             debugM=true;
             cout<<"Debug mode selected"<<endl;
         }
 
-        else if(!strcmp(option, "-VB")){
+        else if(!strcmp(option, "-VB"))
+        {
             triBased = false;
             justvisualize=false;
             QString input = argv[n_opt+1];
             fieldFile = input.toStdString();
         }
-        else{
+        else
+        {
             cout<<"Uncorrect usage"<<endl;
             print_help();
             exit(0);
         }
     }
 
-    if(justvisualize){  /// if we only want to call the visualizer on a segmentation
+    // if(justvisualize)
+    // {  /// if we only want to call the visualizer on a segmentation
 
-        callVis(meshfilename, segFile);
-        return a.exec();
-    }
+    //     callVis(meshfilename, segFile);
+    //     return a.exec();
+    // }
 
-    if(!triBased){
+    // if(!triBased)
+    // {
 
-        cout<<"Loading vertices"<<endl;
-        VertexBasedSegmenter *VBSuperSeg = new VertexBasedSegmenter;
-        cout<<"Created"<<endl;
-        VBSuperSeg->filename = meshfilename;
-        VBSuperSeg->fieldfilename = fieldFile;
-        VBSuperSeg->setNCluster(number);
-        VBSuperSeg->setAlpha(alpha);
-        VBSuperSeg->callLoad();
+    //     cout<<"Loading vertices"<<endl;
+    //     VertexBasedSegmenter *VBSuperSeg = new VertexBasedSegmenter;
+    //     cout<<"Created"<<endl;
+    //     VBSuperSeg->filename = meshfilename;
+    //     VBSuperSeg->fieldfilename = fieldFile;
+    //     VBSuperSeg->setNCluster(number);
+    //     VBSuperSeg->setAlpha(alpha);
+    //     VBSuperSeg->callLoad();
 
-        VBSuperSeg->startSeg();
-        cout<<"Converged, now writing"<<endl;
-        VBSuperSeg->callWriter(segFile);
+    //     VBSuperSeg->startSeg();
+    //     cout<<"Converged, now writing"<<endl;
+    //     VBSuperSeg->callWriter(segFile);
 
-        return 0;
-    }
+    //     return 0;
+    // }
 
-    /// Create segmenter class
-    Segmenter *SuperSeg = new Segmenter;
+    // /// Create segmenter class
+    // Segmenter *SuperSeg = new Segmenter;
 
-    /// set parameters
-    SuperSeg->filename=meshfilename;  /// file to segment
-    SuperSeg->setAlpha(alpha);   /// weight of the angular distance
-    /// Spatial threshold / number of regions
-    if(radius > 0)
-        SuperSeg->setMaxD(radius);
-    if(number > 0)
-        SuperSeg->setNCluster(number);
-    SuperSeg->setEtaConvex(etaConvex); /// weight of convex angle
-    SuperSeg->putHeader=putHeader;
-    SuperSeg->setTimesR(timesR);  /// factor which multiplies the threshold in the expansion step
-    SuperSeg->setMaxIters(nIters); /// Number of maximum iterative steps to make
-    SuperSeg->floodInit = floodI;  /// If we know the radius, to decide between flood and grid initialization
-    SuperSeg->debugMode = debugM;  /// If we are running in debug mode (more messages will be displayed)
+    // /// set parameters
+    // SuperSeg->SetMeshName(meshfilename);//m_MeshName=meshfilename;  /// file to segment
+    // SuperSeg->setAlpha(alpha);   /// weight of the angular distance
+    // /// Spatial threshold / number of regions
+    // if(radius > 0)
+    //     SuperSeg->setMaxD(radius);
+    // if(number > 0)
+    //     SuperSeg->setNCluster(number);
+    // SuperSeg->setEtaConvex(etaConvex); /// weight of convex angle
+    // SuperSeg->SetPutHeader(putHeader);
+    // SuperSeg->SetTimesR(timesR);  /// factor which multiplies the threshold in the expansion step
+    // SuperSeg->setMaxIters(nIters); /// Number of maximum iterative steps to make
+    // SuperSeg->m_FloodInit = floodI;  /// If we know the radius, to decide between flood and grid initialization
+    // SuperSeg->m_DebugMode = debugM;  /// If we are running in debug mode (more messages will be displayed)
 
-    /// Load the model
-    SuperSeg->callLoad();
-    bool haveMoved=true;
-    int countIter=0;
-    Timer TMR;
-    TMR.start();
+    // /// Load the model
+    // SuperSeg->callLoad();
+    // bool haveMoved=true;
+    // int countIter=0;
+    // Timer TMR;
+    // TMR.start();
 
-    /// Iterate until convergence
-    while(haveMoved && countIter<SuperSeg->getMaxIters()){
-        cout<<"Iteration "<<countIter<<"..."<<endl;
-        if(haveMoved)
-            SuperSeg->expansionStep();
-        if(debugM)
-            cout<<"Expanded"<<endl;
-        haveMoved = SuperSeg->updateCenters();
-        if(debugM)
-            cout<<"Updated"<<endl;
-        countIter++;
-    }
-    TMR.stop();
-    double timeForSeg = TMR.getElapsedTimeInMilliSec();
-    timeForSeg += SuperSeg->initTime;
-    SuperSeg->setElapsedTime(timeForSeg);
-    SuperSeg->setIters(countIter);
+    // /// Iterate until convergence
+    // while(haveMoved && countIter<MAX_ITERATIONS){
+    //     cout<<"Iteration "<<countIter<<"..."<<endl;
+    //     if(haveMoved)
+    //         SuperSeg->expansionStep();
+    //     if(debugM)
+    //         cout<<"Expanded"<<endl;
+    //     haveMoved = SuperSeg->UpdateCenters();
+    //     if(debugM)
+    //         cout<<"Updated"<<endl;
+    //     countIter++;
+    // }
+    // TMR.stop();
+    // double timeForSeg = TMR.getElapsedTimeInMilliSec();
+    // timeForSeg += SuperSeg->initTime;
+    // SuperSeg->setElapsedTime(timeForSeg);
+    // SuperSeg->setIters(countIter);
 
-    /// Write to file
-    if(strcmp(segFile.c_str(), ""))
-        SuperSeg->writeSegmOnFile(segFile);
-    else
-        cout<<"No output file"<<endl;
+    // /// Write to file
+    // if(strcmp(segFile.c_str(), ""))
+    //     SuperSeg->writeSegmOnFile(segFile);
+    // else
+    //     cout<<"No output file"<<endl;
 
-    /// calls the visualizer after the segmentation
-    if(visualize){
+    // /// calls the visualizer after the segmentation
+    // if(visualize){
 
-        callVis(meshfilename, segFile);
-        return a.exec();
-    }
+    //     callVis(meshfilename, segFile);
+    //     return a.exec();
+    // }
 
     return 0;
 
