@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <queue>
 #include <unordered_set>
+#include <map>
 #include <numeric>
 #include <QString>
 #include <QStringList>
@@ -45,55 +46,55 @@ struct compare
     }
 };
 
-/*!
-     * \brief getKey
-     * \param a index of the first face
-     * \param b index of the second face
-     * \return the key value (used by the structures storing the distances between faces)
-     */
-edgekey getKey(faceind a, faceind b)
-{
+// /*!
+//      * \brief getKey
+//      * \param a index of the first face
+//      * \param b index of the second face
+//      * \return the key value (used by the structures storing the distances between faces)
+//      */
+// edgekey getKey(faceind a, faceind b)
+// {
 
-    if(a<=b)
-        return (edgekey(a) << 32 | edgekey(b));
-    else
-        return (edgekey(b) << 32 | edgekey(a));
-}
+//     if(a<=b)
+//         return (edgekey(a) << 32 | edgekey(b));
+//     else
+//         return (edgekey(b) << 32 | edgekey(a));
+// }
 
 
-gridkey getGridKey(coordind x, coordind y, coordind z)
-{
-    //return (gridkey(x) << 16 | gridkey(y) << 8 | gridkey(z));
-    if(x <= y && x <= z)
-    {
-        if(y<=z)
-            return (gridkey(fabs(x)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(z)));
-        else
-            return (gridkey(fabs(x)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(y)));
-    }
-    else
-    {
-        if(y <= z)
-        {
-            if(x <= z)
-                return (gridkey(fabs(y)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(z)));
-            return (gridkey(fabs(y)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(x)));
-        }
-        if(x <= y)
-            return (gridkey(fabs(z)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(y)));
-        return (gridkey(fabs(z)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(x)));
-    }
+// gridkey getGridKey(coordind x, coordind y, coordind z)
+// {
+//     //return (gridkey(x) << 16 | gridkey(y) << 8 | gridkey(z));
+//     if(x <= y && x <= z)
+//     {
+//         if(y<=z)
+//             return (gridkey(fabs(x)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(z)));
+//         else
+//             return (gridkey(fabs(x)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(y)));
+//     }
+//     else
+//     {
+//         if(y <= z)
+//         {
+//             if(x <= z)
+//                 return (gridkey(fabs(y)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(z)));
+//             return (gridkey(fabs(y)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(x)));
+//         }
+//         if(x <= y)
+//             return (gridkey(fabs(z)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(y)));
+//         return (gridkey(fabs(z)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(x)));
+//     }
 
-}
+// }
 
-int minArrayIndex(float array[3])
-{
-    if(array[0]<array[1] && array[0]<array[2])
-        return 0;
-    else if(array[1]<array[2])
-        return 1;
-    else
-        return 2;
-}
+// int minArrayIndex(float array[3])
+// {
+//     if(array[0]<array[1] && array[0]<array[2])
+//         return 0;
+//     else if(array[1]<array[2])
+//         return 1;
+//     else
+//         return 2;
+// }
 
 #endif // COMMON_H

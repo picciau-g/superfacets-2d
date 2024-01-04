@@ -17,6 +17,63 @@
 
 #define ETA_CONVEX 2
 
+class KeyHandler
+{
+public:
+/*!
+     * \brief getKey
+     * \param a index of the first face
+     * \param b index of the second face
+     * \return the key value (used by the structures storing the distances between faces)
+     */
+static edgekey getKey(faceind a, faceind b)
+{
+
+    if(a<=b)
+        return (edgekey(a) << 32 | edgekey(b));
+    else
+        return (edgekey(b) << 32 | edgekey(a));
+}
+
+
+static gridkey getGridKey(coordind x, coordind y, coordind z)
+{
+    //return (gridkey(x) << 16 | gridkey(y) << 8 | gridkey(z));
+    if(x <= y && x <= z)
+    {
+        if(y<=z)
+            return (gridkey(fabs(x)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(z)));
+        else
+            return (gridkey(fabs(x)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(y)));
+    }
+    else
+    {
+        if(y <= z)
+        {
+            if(x <= z)
+                return (gridkey(fabs(y)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(z)));
+            return (gridkey(fabs(y)) << 16 | gridkey(fabs(z)) << 8 | gridkey(fabs(x)));
+        }
+        if(x <= y)
+            return (gridkey(fabs(z)) << 16 | gridkey(fabs(x)) << 8 | gridkey(fabs(y)));
+        return (gridkey(fabs(z)) << 16 | gridkey(fabs(y)) << 8 | gridkey(fabs(x)));
+    }
+
+}
+
+static int minArrayIndex(float array[3])
+{
+    if(array[0]<array[1] && array[0]<array[2])
+        return 0;
+    else if(array[1]<array[2])
+        return 1;
+    else
+        return 2;
+}
+
+};
+
+
 
 /**
  *
@@ -28,10 +85,8 @@ class Segmenter
 public:
     Segmenter() = delete;
     Segmenter(const Segmenter& ) = delete;
-    Segmenter(const std::string& pMeshName, unsigned int pRegions, float pAlpha);
-    Segmenter(const std::string& pMeshName, float pRegionSize, float pAlpha);
 
-    Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha);
+    Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha, bool pFlood);
     Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha);
 
     virtual ~Segmenter(){}
@@ -58,6 +113,12 @@ public:
         m_PutHeader = pH;
     }
 
+    /// Initializes the structures and starts the segmentation
+    void StartSegmentation();
+    void ClassificationStep();
+    /// Update of the centroids
+    bool UpdateCenters();
+
     /// Input/Output Functions
     int WriteSegmOnFile(string);
 
@@ -79,18 +140,13 @@ private:
     /// Dijkstra functions (initialization and iterative step)
     void GridInitialization();
     void FloodInitialization(int);
-    void ClassificationStep();
     void ExpandFromSeed(int, int);
 
     /// Performs a classification step
     void Segmentation();
     /// Check that all the faces have been assigned to some cluster
     bool CheckClusterIndex();
-    /// Update of the centroids
-    bool UpdateCenters();
 
-    /// Loads the mesh and initializes the structures
-    void LoadMesh();
     /// Gets the length of the bounding box
     void GetBoundingBoxDiagonal();
 
@@ -115,10 +171,10 @@ private:
     /// Distance between a face and its closest region centroid
     std::unordered_map<edgekey, float> m_OutputDijkstra;
     /// Region index for each face THIS WILL LIKELY BE DELETED AND MERGED IN OUTPUTDIJKSTRA
-    std::unordered_map<edgekey, int> m_ClusterIndex;
+    std::vector<int> m_ClusterIndex;
 
     /// Index of the "Central Triangle" of the region
-    std::unordered_map<edgekey, int> m_RegionCentroids;
+    std::map<edgekey, int> m_RegionCentroids;
 
     std::vector<Vertex3D> m_FacesCentroids;
     std::vector<Normals> m_Normals;

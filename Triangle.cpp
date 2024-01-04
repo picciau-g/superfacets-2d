@@ -13,7 +13,7 @@ Triangle::Triangle()
  */
 Triangle::Triangle(int v1, int v2, int v3)
     :
-    m_Vertices(glm::ivec3(v1, v2, v3))
+    m_Vertices(std::vector<int>{v1, v2, v3})
 {
 }
 
@@ -54,7 +54,7 @@ int Triangle::TT(int pos)
  */
 void Triangle::setTT(int pos, int adjId)
 {
-    this->m_Adjacencies[pos]=adjId;
+    this->m_Adjacencies[pos % 3]=adjId;
 }
 
 /**
@@ -70,6 +70,6 @@ int Triangle::getVerticesNum()
 bool Triangle::operator==(const Triangle& pOth) const
 {
     return m_Vertices == pOth.Vertices() ||
-           (m_Vertices.x == pOth.Vertices().y && m_Vertices.y == pOth.Vertices().z && m_Vertices.z == pOth.Vertices().x) ||
-           (m_Vertices.x == pOth.Vertices().z && m_Vertices.z == pOth.Vertices().y && m_Vertices.y == pOth.Vertices().x);
+           (m_Vertices[0] == pOth.Vertices()[1] && m_Vertices[1] == pOth.Vertices()[2] && m_Vertices[2] == pOth.Vertices()[0]) ||
+           (m_Vertices[0] == pOth.Vertices()[2] && m_Vertices[2] == pOth.Vertices()[1] && m_Vertices[1] == pOth.Vertices()[0]);
 }

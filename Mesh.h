@@ -203,10 +203,11 @@ void Mesh<T>::Build()
 template<class T>
 void Mesh<T>::FindAdjacencies()
 {
-    //aux *tr_vec ;
-    std::vector<aux> tr_vec;
+    aux *tr_vec ;
+    //std::vector<aux> tr_vec;
 
-    tr_vec.reserve(GetNumberOfTopSimplexes()*3);
+    //tr_vec.reserve(GetNumberOfTopSimplexes()*3);
+    tr_vec = (aux*) calloc(GetNumberOfTopSimplexes()*3, sizeof(aux));
     int k = 0;
 
     for (int j=0; j<GetNumberOfTopSimplexes(); j++)
@@ -234,7 +235,8 @@ void Mesh<T>::FindAdjacencies()
         }
     }
 
-    std::sort(tr_vec.begin(), tr_vec.end(), CompareAux);
+    //std::sort(tr_vec.begin(), tr_vec.end(), CompareAux);
+    qsort(tr_vec, 3*GetNumberOfTopSimplexes(), sizeof(aux), cmp_aux);
 
     for(k=0; k<3*GetNumberOfTopSimplexes()-1; k++)
     {
@@ -246,7 +248,7 @@ void Mesh<T>::FindAdjacencies()
             LinkAdjacencies(t1,t2);
         }
     }
-    tr_vec.clear();
+    free(tr_vec);//tr_vec.clear();
     return;
 }
 
@@ -826,8 +828,8 @@ void Mesh<T> :: ReorderTriangulation()
 
     for(int i=0; i<GetNumberOfTopSimplexes(); i++)
     {
-
-            for(int j=0; j<3; j++){
+            for(int j=0; j<3; j++)
+        {
                 if(GetTopSimplex(i).TT(j) != -1)
                     GetTopSimplex(i).setTT(j, new_triangle_index[GetTopSimplex(i).TT(j)]);
             }

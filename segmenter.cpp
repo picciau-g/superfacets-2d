@@ -15,14 +15,16 @@
 #include <stdio.h>
 
 
-Segmenter::Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha)
+Segmenter::Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha, bool pFlood)
     :
     m_Mesh(pMesh)
     , m_NCluster(pRegions)
     , m_Alpha(pAlpha)
-    , m_FloodInit(false)
+    , m_FloodInit(pFlood)
 {
-
+    std::cout << "Segmenter Given Number of Regions " << std::endl;
+    if(pFlood)
+        std::cout << "AND FLOOD " << std::endl;
 }
 
 Segmenter::Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha)
@@ -32,7 +34,7 @@ Segmenter::Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlph
     , m_RegionRadius(pRegionSize)
     , m_FloodInit(true)
 {
-
+    std::cout << "Segmenter Given Expected Radius of Regions " << std::endl;
 }
 
 /**
@@ -60,21 +62,16 @@ void Segmenter::OpenMeshFile(string mName)
 }
 
 /**
- * @brief Segmenter::LoadMesh loads the m_Mesh and initialize the structures
+ * @brief Segmenter::StartSegmentation loads the m_Mesh and initialize the structures
  */
-void Segmenter::LoadMesh()
+void Segmenter::StartSegmentation()
 {
-
-    m_Timer.start();
-    OpenMeshFile(m_MeshName);
-
-    if(m_DebugMode)
-        std::cout << "Time to load and build is " << m_Timer.getElapsedTimeInMilliSec() << " milleseconds"<<std::endl;
-
     //initialize the structures
     m_FacesCentroids=ComputeFacesCentroids();
     m_NearestT=NearestFace();
     m_Normals.reserve(m_Mesh.GetNumberOfTopSimplexes()*sizeof(Normals));
+
+    m_ClusterIndex = std::vector<int>(m_Mesh.GetNumberOfTopSimplexes(), -1);
 
     //Normals
     for(unsigned int a=0; a<m_Mesh.GetNumberOfTopSimplexes(); a++)
@@ -99,7 +96,7 @@ void Segmenter::LoadMesh()
         std::cout<< "Clusters "<< m_NCluster << endl;
     }
     m_Timer.start();
-    if(m_NCluster < 0)
+    if(m_NCluster <= 0)
     { /// we don't know how many regions because it is radius-based
 
         if(m_FloodInit)
@@ -126,7 +123,7 @@ void Segmenter::LoadMesh()
     if(m_DebugMode)
         std::cout << "Time for the initialization is " << initTime << " milliseconds" <<std::endl;
 
-    if(m_NCluster < 0)
+    if(m_NCluster <= 0)
     { /// was not passed as parameter
 
         m_NCluster = 0;
@@ -268,7 +265,7 @@ std::unordered_map<edgekey, float> Segmenter::BuildFaceDistances()
         {
 
             int f2 = T.TT(jj);
-            edgekey ek = getKey(ii, f2);
+            edgekey ek = KeyHandler::getKey(ii, f2);
 
             //If it is not already in the structure
             if(!FD.count(ek) && f2 >= 0)
@@ -299,7 +296,7 @@ std::unordered_map<edgekey, float> Segmenter::BuildAngleDistances()
         for(int jj=0;jj<3;jj++)
         {
             int f2 = T.TT(jj);
-            edgekey ek = getKey(ii,f2);
+            edgekey ek = KeyHandler::getKey(ii,f2);
 
             if(aDistances.count(ek)==0 && f2>=0)
             {
@@ -364,7 +361,7 @@ void Segmenter::BuildGlobalDistances()
         for(int jj=0; jj<3; jj++)
         {
             int f2=T.TT(jj);
-            edgekey ek = getKey(ii, f2);
+            edgekey ek = KeyHandler::getKey(ii, f2);
 
             if(f2 >= 0 && !m_GlobalDistances.count(ek))
             {
@@ -390,41 +387,37 @@ void Segmenter::ClassificationStep()
         m_ClusterIndex[ii] = -1;
     }
 
-    for(unsigned int ii=0;ii<m_RegionCentroids.size();ii++) //initializa the region centroids
+    for(auto regC : m_RegionCentroids) //initializa the region centroids
     {
-        m_OutputDijkstra[m_RegionCentroids[ii]]=0.0;    //  distance to centeroid is always 0
+        m_OutputDijkstra[regC.second/*m_RegionCentroids[ii]*/]=0.0;    //  distance to centeroid is always 0
     }
 
 
-    for(unsigned int ii=0;ii<m_RegionCentroids.size();ii++)
+    for(auto regC : m_RegionCentroids)//for(unsigned int ii=0;ii<m_RegionCentroids.size();ii++)
     {
         //Visit the triangles with a Dijkstra-based algorithm starting from a region centroid
-        ExpandFromSeed(m_RegionCentroids[ii], ii);
+        ExpandFromSeed(regC.second, regC.first);
     }
-
-    //Calculate the minimum, maximum and average number of expansions (DEBUG PURPOSES)
-    //
-    //
-
+    std::cout << "Expanded " << std::endl;
     //Repair step to re-assign faces whose index is -1
-    while(!CheckClusterIndex())
-    {
-        int violator = -1;
-        for(size_t vv=0; vv<m_FacesCentroids.size(); vv++)
-        {
-            if(m_ClusterIndex[vv]<0)
-            {
-                violator=vv;
-                break;
-            }
-        }
+    // while(!CheckClusterIndex())
+    // {
+    //     int violator = -1;
+    //     for(size_t vv=0; vv<m_FacesCentroids.size(); vv++)
+    //     {
+    //         if(m_ClusterIndex[vv]<0)
+    //         {
+    //             violator=vv;
+    //             break;
+    //         }
+    //     }
 
-        if(violator >= 0 && violator < m_FacesCentroids.size())
-        {
-            ExpandFromSeed(violator, m_NCluster++);
-        }
-    }
-    assert(CheckClusterIndex());
+    //     if(violator >= 0 && violator < m_FacesCentroids.size())
+    //     {
+    //         ExpandFromSeed(violator, m_NCluster++);
+    //     }
+    // }
+    // assert(CheckClusterIndex());
 }
 
 /**
@@ -443,7 +436,6 @@ void Segmenter::ExpandFromSeed(int indexT, int newind)
     seed.distanceP=0.0;
     Q.push(seed);
 
-    Vertex3D rc = m_FacesCentroids[indexT];
     m_ClusterIndex[indexT]=newind;
 
     m_RegionCentroids[newind]=indexT;
@@ -451,22 +443,22 @@ void Segmenter::ExpandFromSeed(int indexT, int newind)
     while(!Q.empty())
     {
 
-        pointDist actual=Q.top();
+        pointDist current=Q.top();
         Q.pop();
 
-        if(rc.distance(m_FacesCentroids.at(actual.indexP))/m_AABBDiagonal <= 2.0*m_RegionRadius)
+        if(m_FacesCentroids[indexT].distance(m_FacesCentroids[current.indexP])/m_AABBDiagonal <= 2.0*m_RegionRadius)
         {
             int neigh;
-            Triangle T = m_Mesh.GetTopSimplex(actual.indexP);
+            Triangle T = m_Mesh.GetTopSimplex(current.indexP);
 
-            for(int jj=0;jj<3;jj++)
+            for(int jj=0; jj<3; jj++)
             {
                 neigh=T.TT(jj);
 
-                if(visited.count(neigh)==0 && neigh>=0)
+                if(neigh>= 0 && visited.count(neigh)==0)
                 {
 
-                    float newdist=actual.distanceP + m_GlobalDistances[getKey(actual.indexP, neigh)];
+                    float newdist=current.distanceP + m_GlobalDistances[KeyHandler::getKey(current.indexP, neigh)];
 
                     if(newdist < m_OutputDijkstra[neigh])
                     {
@@ -480,7 +472,7 @@ void Segmenter::ExpandFromSeed(int indexT, int newind)
                     }
                 }
             }
-            visited.insert(actual.indexP);
+            visited.insert(current.indexP);
         }
     }
 }
@@ -495,8 +487,9 @@ void Segmenter::PlaceSeeds(int index)
     m_RegionCentroids[0] = index;
     m_ClusterIndex[index]=0;
 
-    //double *distFromSeeds = new double[m_Mesh.GetNumberOfTopSimplexes()];
-    std::vector<double> distanceFromSeeds(m_Mesh.GetNumberOfTopSimplexes(), 0);
+    //set with the face index of the already placed centroids
+    std::unordered_set<faceind> aux_centroids;
+    aux_centroids.insert(index);
 
     int count=1;
     if(m_DebugMode)
@@ -504,25 +497,32 @@ void Segmenter::PlaceSeeds(int index)
 
     while(m_RegionCentroids.size() < m_NCluster)
     {
+        std::vector<double> distanceFromSeeds(m_Mesh.GetNumberOfTopSimplexes(), DBL_MAX);
         for(int iterFaces = 0; iterFaces < m_Mesh.GetNumberOfTopSimplexes(); iterFaces++)
         {
-            if(m_RegionCentroids.count(iterFaces)==0)
+            if(aux_centroids.count(iterFaces) == 0)//if(m_RegionCentroids.count(iterFaces)==0) //isn't it supposed to search if the face is a region?
             {
                 distanceFromSeeds[iterFaces] = m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[0]]);
+
                 for(size_t kk=1; kk<m_RegionCentroids.size(); kk++)
                 {
-
-                    if(distanceFromSeeds[iterFaces] > m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]))
+                    double dd = m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]);
+                    if(distanceFromSeeds[iterFaces] > dd)
                     {
-                        distanceFromSeeds[iterFaces] = m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]);
+                        distanceFromSeeds[iterFaces] = dd;//m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]);
                     }
 
                 }
+            }
+            else
+            {
+                distanceFromSeeds[iterFaces] = 0.0;
             }
         }
 
         faceind indOfM = IndexOfMax(distanceFromSeeds);
         m_ClusterIndex[indOfM] = count;
+        aux_centroids.insert(indOfM);
         m_RegionCentroids[count++] = indOfM;
     }
 
@@ -548,14 +548,14 @@ void Segmenter::GridInitialization()
         glm::vec3 gridCell = currentV.GetCoordinates() / denominator;
 
         //if it is the first time we encounter the region
-        if(hmap.count(getGridKey(gridCell.x,gridCell.y,gridCell.z))==0)
+        if(hmap.count(KeyHandler::getGridKey(gridCell.x,gridCell.y,gridCell.z))==0)
         {
             m_RegionCentroids[id]=ii;
-            hmap[getGridKey(gridCell.x,gridCell.y,gridCell.z)] = id++;
+            hmap[KeyHandler::getGridKey(gridCell.x,gridCell.y,gridCell.z)] = id++;
         }
 
         //assign a region index to the triangle
-        m_ClusterIndex[ii]=hmap[getGridKey(gridCell.x,gridCell.y,gridCell.z)];
+        m_ClusterIndex[ii]=hmap[KeyHandler::getGridKey(gridCell.x,gridCell.y,gridCell.z)];
     }
 }
 
@@ -790,7 +790,7 @@ bool Segmenter::CheckIfAllVisited(std::unordered_set<edgekey> pSet)
     for(auto it=pSet.begin(); it!=pSet.end(); ++it)
     {
         edgekey faceV = *it;
-        if(m_ClusterIndex.find(faceV) == m_ClusterIndex.end() || m_ClusterIndex[faceV] < 0)
+        if(faceV > m_ClusterIndex.size() || m_ClusterIndex[faceV] < 0)
             return false;
     }
     return true;
@@ -798,11 +798,12 @@ bool Segmenter::CheckIfAllVisited(std::unordered_set<edgekey> pSet)
 
 faceind Segmenter::IndexOfMax(const std::vector<double> &pArray)
 {
-    double current = -10000; //All the values should be > 0 (they are distances)
+    double current = DBL_MIN; //All the values should be > 0 (they are distances)
     int toRet=-1;
     for(int aa=0; aa<pArray.size(); aa++)
     {
-        if(pArray[aa] > current){
+        if(pArray[aa] > current)
+        {
             toRet = aa;
             current = pArray[aa];
         }

@@ -2,6 +2,7 @@
 #define Triangle_H
 
 #include "Edge.h"
+#include <vector>
 
 
 /**
@@ -33,35 +34,37 @@ public:
        return !((*this)==(p));
     }
 
-    inline int vertex_index(int v){
+    inline int vertex_index(int v)
+    {
         for(int i=0; i<3; i++){
             if(m_Vertices[i] == v) return i;
         }
         return -1;
     }
 
-    inline bool contains(int v){
+    inline bool contains(int v)
+    {
         for(int i=0; i<3; i++){
             if(m_Vertices[i] == v) return true;
         }
         return false;
     }
 
-    inline glm::ivec3 Vertices() const
+    inline std::vector<int> Vertices() const
     {
         return m_Vertices;
     }
 
-    inline glm::ivec3 Adjacencies() const
-    {
-        return m_Adjacencies;
-    }
+    // inline int* Adjacencies() const
+    // {
+    //     return *m_Adjacencies;
+    // }
 
 
 private:
-    glm::ivec3 m_Vertices;
+    std::vector<int> m_Vertices;
     ///
-    glm::ivec3 m_Adjacencies;
+    int m_Adjacencies[3];
 };
 
 
