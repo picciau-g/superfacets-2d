@@ -86,8 +86,8 @@ public:
     Segmenter() = delete;
     Segmenter(const Segmenter& ) = delete;
 
-    Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha, bool pFlood);
-    Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha);
+    Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha);
+    Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha, bool pFlood);
 
     virtual ~Segmenter(){}
 
@@ -113,14 +113,16 @@ public:
         m_PutHeader = pH;
     }
 
+    inline std::vector<int> GetSegmentation()
+    {
+        return m_ClusterIndex;
+    }
+
     /// Initializes the structures and starts the segmentation
     void StartSegmentation();
     void ClassificationStep();
     /// Update of the centroids
     bool UpdateCenters();
-
-    /// Input/Output Functions
-    int WriteSegmOnFile(string);
 
 
 private:
@@ -151,8 +153,7 @@ private:
     void GetBoundingBoxDiagonal();
 
     vector<Vertex3D> ComputeFacesCentroids();
-    //MOVE IT TO WINDOW CLASS
-    void OpenMeshFile(string);
+
     /// Returns the distance between two triangles (between their centers)
     float CalculateCentroidDistance(int, int);
 

@@ -99,6 +99,39 @@ Mesh<Triangle> OpenMeshFile(const QString& pMeshName)
     return mesh;
 }
 
+
+void WriteOutputSegmentation(const std::vector<int>& pSegm, std::string pFileOut, bool pPutHeader = true)
+{
+    //open file in write mode
+    ofstream ofs;
+    ofs.open(pFileOut.c_str());
+
+    if(ofs.is_open())
+    {
+
+        //if we want an header (visualization purposes)
+        if(pPutHeader)
+        {
+            ofs << "#";
+            // ofs << asctime(localT) << std::endl;
+            // ofs << "#mesh input=" << m_MeshName << std::endl;
+            // ofs << "#radius=" << m_RegionRadius << std::endl;
+            // ofs << "#alpha=" << m_Alpha << std::endl;
+        }
+        for(size_t a=0; a<pSegm.size(); a++)
+        {
+            ofs << pSegm[a] << endl;
+        }
+
+        ofs.close();
+    }
+    else
+    {
+        std::cout << "Unable to write on file" << std::endl;
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -116,10 +149,11 @@ int main(int argc, char *argv[])
 
     //Parse arguments
     std::string meshfilename;
+    std::string segFile = "Output.dat";
     double alpha;
     double radius;
     int number;
-    bool floodI = false;
+    bool floodI = true;
 
     for(int n_opt=1;n_opt<argc;n_opt+=2)
     {
@@ -173,7 +207,7 @@ int main(int argc, char *argv[])
         else if(!strcmp(option, "-out"))
         {  //The output file in which we write the segmentation
             QString input = argv[n_opt+1];
-            //segFile = input.toStdString();
+            segFile = input.toStdString();
         }
 
         else if(!strcmp(option, "-flood"))
@@ -209,7 +243,7 @@ int main(int argc, char *argv[])
 
     auto procMesh = OpenMeshFile(QString::fromStdString(meshfilename));
 
-    Segmenter segmenter = (number <= 0) ? Segmenter(procMesh, radius, alpha) : Segmenter(procMesh, number, alpha, floodI);
+    Segmenter segmenter = (number <= 0) ? Segmenter(procMesh, radius, alpha, floodI) : Segmenter(procMesh, number, alpha);
     segmenter.StartSegmentation();
 
     for(unsigned short idx = 0; idx < MAX_ITERATIONS; ++idx)
@@ -222,6 +256,8 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    WriteOutputSegmentation(segmenter.GetSegmentation(), segFile);
 
 
     return 0;

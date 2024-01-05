@@ -104,7 +104,7 @@ public:
      */
     inline double distance(const Vertex3D& v)
     {
-        return glm::length(m_Coordinates-v.GetCoordinates());
+        return glm::distance(m_Coordinates, v.GetCoordinates());
     }
 
     /**

@@ -15,51 +15,26 @@
 #include <stdio.h>
 
 
-Segmenter::Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha, bool pFlood)
+Segmenter::Segmenter(const Mesh<Triangle>& pMesh, unsigned int pRegions, float pAlpha)
     :
     m_Mesh(pMesh)
     , m_NCluster(pRegions)
     , m_Alpha(pAlpha)
-    , m_FloodInit(pFlood)
+    , m_FloodInit(false)
 {
     std::cout << "Segmenter Given Number of Regions " << std::endl;
-    if(pFlood)
-        std::cout << "AND FLOOD " << std::endl;
 }
 
-Segmenter::Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha)
+Segmenter::Segmenter(const Mesh<Triangle>& pMesh, float pRegionSize, float pAlpha, bool pFlood)
     :
     m_Mesh(pMesh)
     , m_Alpha(pAlpha)
     , m_RegionRadius(pRegionSize)
-    , m_FloodInit(true)
+    , m_FloodInit(pFlood)
 {
     std::cout << "Segmenter Given Expected Radius of Regions " << std::endl;
 }
 
-/**
- * @brief Segmenter::OpenMeshFile opens the file which stores the m_Mesh and load the structure
- * @param mName path to the m_Mesh file
- */
-void Segmenter::OpenMeshFile(string mName)
-{
-
-    m_Mesh = Mesh<Triangle>();
-    QString qmn = QString::fromStdString(mName);
-    QStringList qsl = qmn.split(".");
-
-    if(!qsl.back().compare("tri"))
-        Reader::readMeshFile(m_Mesh, mName);
-    else if(!qsl.back().compare("off"))
-        Reader::readOFFMesh(m_Mesh, mName);
-    else
-    {
-        std::cout << "Not a valid file format (it must be .off or .tri)" << std::endl;
-        exit(0);
-    }
-
-    m_Mesh.Build();
-}
 
 /**
  * @brief Segmenter::StartSegmentation loads the m_Mesh and initialize the structures
@@ -86,10 +61,6 @@ void Segmenter::StartSegmentation()
 
     BuildGlobalDistances();
 
-/*    if(m_DebugMode)
-        expanded = new int[m_Mesh.GetNumberOfTopSimplexes()];*/ // it will be used only for debug purposes
-
-    //Initialization (all the three methods are possible)
     if(m_DebugMode)
     {
         std::cout << "start timer" << std::endl;
@@ -389,7 +360,7 @@ void Segmenter::ClassificationStep()
 
     for(auto regC : m_RegionCentroids) //initializa the region centroids
     {
-        m_OutputDijkstra[regC.second/*m_RegionCentroids[ii]*/]=0.0;    //  distance to centeroid is always 0
+        m_OutputDijkstra[regC.second]=0.0;    //  distance to centeroid is always 0
     }
 
 
@@ -399,25 +370,26 @@ void Segmenter::ClassificationStep()
         ExpandFromSeed(regC.second, regC.first);
     }
     std::cout << "Expanded " << std::endl;
-    //Repair step to re-assign faces whose index is -1
-    // while(!CheckClusterIndex())
-    // {
-    //     int violator = -1;
-    //     for(size_t vv=0; vv<m_FacesCentroids.size(); vv++)
-    //     {
-    //         if(m_ClusterIndex[vv]<0)
-    //         {
-    //             violator=vv;
-    //             break;
-    //         }
-    //     }
 
-    //     if(violator >= 0 && violator < m_FacesCentroids.size())
-    //     {
-    //         ExpandFromSeed(violator, m_NCluster++);
-    //     }
-    // }
-    // assert(CheckClusterIndex());
+    //Repair step to re-assign faces whose index is -1
+    while(!CheckClusterIndex())
+    {
+        int violator = -1;
+        for(size_t vv=0; vv<m_FacesCentroids.size(); vv++)
+        {
+            if(m_ClusterIndex[vv]<0)
+            {
+                violator=vv;
+                break;
+            }
+        }
+
+        if(violator >= 0 && violator < m_FacesCentroids.size())
+        {
+            ExpandFromSeed(violator, m_NCluster++);
+        }
+    }
+    assert(CheckClusterIndex());
 }
 
 /**
@@ -446,7 +418,9 @@ void Segmenter::ExpandFromSeed(int indexT, int newind)
         pointDist current=Q.top();
         Q.pop();
 
-        if(m_FacesCentroids[indexT].distance(m_FacesCentroids[current.indexP])/m_AABBDiagonal <= 2.0*m_RegionRadius)
+        auto compNum = m_FacesCentroids[indexT].distance(m_FacesCentroids[current.indexP]);
+        double comp = compNum/m_AABBDiagonal;
+        if(comp <= 2.0*m_RegionRadius)
         {
             int neigh;
             Triangle T = m_Mesh.GetTopSimplex(current.indexP);
@@ -457,7 +431,6 @@ void Segmenter::ExpandFromSeed(int indexT, int newind)
 
                 if(neigh>= 0 && visited.count(neigh)==0)
                 {
-
                     float newdist=current.distanceP + m_GlobalDistances[KeyHandler::getKey(current.indexP, neigh)];
 
                     if(newdist < m_OutputDijkstra[neigh])
@@ -500,7 +473,7 @@ void Segmenter::PlaceSeeds(int index)
         std::vector<double> distanceFromSeeds(m_Mesh.GetNumberOfTopSimplexes(), DBL_MAX);
         for(int iterFaces = 0; iterFaces < m_Mesh.GetNumberOfTopSimplexes(); iterFaces++)
         {
-            if(aux_centroids.count(iterFaces) == 0)//if(m_RegionCentroids.count(iterFaces)==0) //isn't it supposed to search if the face is a region?
+            if(aux_centroids.count(iterFaces) == 0)
             {
                 distanceFromSeeds[iterFaces] = m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[0]]);
 
@@ -509,7 +482,7 @@ void Segmenter::PlaceSeeds(int index)
                     double dd = m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]);
                     if(distanceFromSeeds[iterFaces] > dd)
                     {
-                        distanceFromSeeds[iterFaces] = dd;//m_FacesCentroids[iterFaces].distance(m_FacesCentroids[m_RegionCentroids[kk]]);
+                        distanceFromSeeds[iterFaces] = dd;
                     }
 
                 }
@@ -567,26 +540,12 @@ void Segmenter::FloodInitialization(int indexT)
 {
     priority_queue<pointDist, vector<pointDist>, compare> facesQueue;
 
-    //Array to keep track of expanded faces (DEBUG PURPOSES)
-    if(m_DebugMode)
-    {
-
-        std::vector<bool> expanded(m_Mesh.GetNumberOfTopSimplexes(), false);
-        expanded.reserve(m_Mesh.GetNumberOfTopSimplexes());
-
-        expanded[indexT] = true; //Mark the seed as expanded
-    }
-
     // Initialize the distance graph to infinity for each triangle
     for(unsigned int ii=0; ii<m_Mesh.GetNumberOfTopSimplexes(); ii++)
     {
         m_OutputDijkstra[ii]=FLT_MAX;
     }
     m_OutputDijkstra[indexT]=0; //Distance of the seed is 0
-
-    // Initialize index of each face to -1 (unassigned)
-    for(unsigned int ii=0;ii<m_Mesh.GetNumberOfTopSimplexes();ii++)
-        m_ClusterIndex[ii]=-1;
 
     //Queue that stores all the triangles ordered with respect to their Euclidean distance from the seed
     //we had it to avoid having unassigned faces at the end of the initialization
@@ -622,11 +581,6 @@ void Segmenter::FloodInitialization(int indexT)
             break;
         }
 
-        if(m_DebugMode)
-        {
-            // if(!expanded[m_RegionCentroids[actualInd]])
-            //     expanded[m_RegionCentroids[actualInd]] = 1;
-        }
         ExpandFromSeed(center.indexP, currentIndex++);
     }
 }
@@ -736,51 +690,6 @@ bool Segmenter::UpdateCenters()
         std::cout << "Differences in " << ctrdiff << " regions, total = " << totaldiff << std::endl;
     }
     return any_moves;
-}
-
-/**
- * @brief Segmenter::WriteSegmOnFile
- * @param fileout the file in which the segmentation is saved
- * @return 0 if everything is ok, -1 otherwise
- */
-int Segmenter::WriteSegmOnFile(string fileout)
-{
-
-    //open file in write mode
-        ofstream ofs;
-        ofs.open(fileout.c_str());
-
-        time_t now;
-        time(&now);
-
-        struct tm * localT=localtime(&now);
-
-        if(ofs.is_open())
-        {
-
-            //if we want an header (visualization purposes)
-            if(m_PutHeader)
-            {
-                ofs << "#";
-                ofs << asctime(localT) << std::endl;
-                ofs << "#mesh input=" << m_MeshName << std::endl;
-                ofs << "#radius=" << m_RegionRadius << std::endl;
-                ofs << "#alpha=" << m_Alpha << std::endl;
-            }
-            for(size_t a=0; a<m_FacesCentroids.size(); a++)
-            {
-                ofs << m_ClusterIndex[a] << endl;
-            }
-
-            ofs.close();
-
-            return 0;
-        }
-        else
-        {
-            std::cout << "Unable to write on file" << std::endl;
-            return -1;
-        }
 }
 
 
