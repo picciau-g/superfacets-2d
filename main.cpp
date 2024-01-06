@@ -100,7 +100,7 @@ Mesh<Triangle> OpenMeshFile(const QString& pMeshName)
 }
 
 
-void WriteOutputSegmentation(const std::vector<int>& pSegm, std::string pFileOut, bool pPutHeader = true)
+void WriteOutputSegmentation(const Segmenter& pSegm, std::string pFileOut, bool pPutHeader = true)
 {
     //open file in write mode
     ofstream ofs;
@@ -113,14 +113,14 @@ void WriteOutputSegmentation(const std::vector<int>& pSegm, std::string pFileOut
         if(pPutHeader)
         {
             ofs << "#";
-            // ofs << asctime(localT) << std::endl;
-            // ofs << "#mesh input=" << m_MeshName << std::endl;
-            // ofs << "#radius=" << m_RegionRadius << std::endl;
-            // ofs << "#alpha=" << m_Alpha << std::endl;
+            //ofs << asctime(localT) << std::endl;
+            ofs << "#mesh input=" << pSegm.GetMeshName() << std::endl;
+            ofs << "#radius=" << pSegm.GetRegionRadius() << std::endl;
+            ofs << "#alpha=" << pSegm.GetAlpha() << std::endl;
         }
-        for(size_t a=0; a<pSegm.size(); a++)
+        for(auto idx : pSegm.GetSegmentation())
         {
-            ofs << pSegm[a] << endl;
+            ofs << idx << endl;
         }
 
         ofs.close();
@@ -136,9 +136,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     bool debugM=false;
-    int timesR = 2;
-    int nIters = 50;
-    bool triBased = true;
 
     if(argc==1)
     {
@@ -186,18 +183,6 @@ int main(int argc, char *argv[])
             alpha = input.toDouble();
         }
 
-        else if(!strcmp(option, "-eta"))
-        { //Value of eta if the angle is convex
-            QString input = argv[n_opt+1];
-            //etaConvex = input.toDouble();
-        }
-
-        else if(!strcmp(option, "-h"))
-        {  //put the header in the file
-            //putHeader = true;
-            n_opt--;
-        }
-
         else if(!strcmp(option, "-vis"))
         {  //Launch the visualizer when segmentation is done
             //visualize = true;
@@ -214,17 +199,6 @@ int main(int argc, char *argv[])
         {  //Radius-based, decide the strategy
             QString input = argv[n_opt+1];
             floodI = (bool)input.toInt();
-        }
-
-        else if(!strcmp(option, "-mult"))
-        {
-            QString input = argv[n_opt+1];
-            timesR = input.toInt();
-        }
-        else if(!strcmp(option, "-nIter"))
-        {
-            QString input = argv[n_opt+1];
-            nIters = input.toInt();
         }
 
         else if(!strcmp(option, "-debug"))
@@ -257,8 +231,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    WriteOutputSegmentation(segmenter.GetSegmentation(), segFile);
-
+    WriteOutputSegmentation(segmenter, segFile);
 
     return 0;
 

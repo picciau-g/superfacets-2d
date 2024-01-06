@@ -108,12 +108,22 @@ public:
     }
 
 
+    inline float GetRegionRadius() const
+    {
+        return m_RegionRadius;
+    }
+
+    inline float GetAlpha() const
+    {
+        return m_Alpha;
+    }
+
     inline void SetPutHeader(bool pH)
     {
         m_PutHeader = pH;
     }
 
-    inline std::vector<int> GetSegmentation()
+    inline std::vector<int> GetSegmentation() const
     {
         return m_ClusterIndex;
     }
